@@ -24,7 +24,7 @@ var
 
 
 proc version*(): string =
-  return "0.4.0"
+  return "0.1.0"
 
 type
   QiimeArtifact* = object
