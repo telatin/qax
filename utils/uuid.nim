@@ -1,0 +1,3 @@
+import nuuid
+
+echo generateUUID()

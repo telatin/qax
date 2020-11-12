@@ -1,0 +1,2 @@
+import uuids
+echo $genUUID()
