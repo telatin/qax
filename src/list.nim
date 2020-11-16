@@ -1,17 +1,60 @@
 
 import strformat
-import tables, strutils
+import tables, strutils, times, algorithm, terminaltables
 from os import fileExists
 import docopt
 import ./qax_utils
+ 
 
+
+
+proc generateHeader(columns: seq[string]): seq[string] =
+  if "uuid" in columns:
+    result.add("ID")
+  if "abspath" in columns:
+    result.add("Path")
+  elif "basename" in columns:
+    result.add("Basename")
+  else:
+    result.add("Path")
+  
+  result.add("Type")
+  result.add("Format")
+  if "date" in columns:
+    result.add("Date")
+
+
+proc generateFields(artifact: QiimeArtifact, columns: seq[string]): seq[string] =
+  if "uuid" in columns:
+    result.add(artifact.uuid)
+
+  if "abspath" in columns:
+    result.add(artifact.path)
+  elif "basename" in columns:
+    result.add(artifact.basename)
+  else:
+    result.add(artifact.inputpath)
+  
+  result.add($artifact.artifacttype)
+  result.add($artifact.format)
+  if "date" in columns:
+    result.add($artifact.date & ";" & $artifact.time)
+
+proc printLine(artifact: QiimeArtifact, columns: seq[string]) =
+  echo $artifact
 
 proc list(argv: var seq[string]): int =
     let args = docopt("""
 Usage: list [options] [<inputfile> ...]
 
 Options:
-  -s, --separator SEP    Separator [default: tab]
+  -a, --abspath          Show absolute paths [default: false]
+  -b, --basename         Use basename instead of path [default: false]
+  -d, --datetime         Show artifact's date time [default: false]
+  -u, --uuid             Show uuid [default: false]
+  -r, --rawtable         Don't print a Unicode table   
+  -s, --sortby SORT      Column to sort (uuid, type, format, date) [default: ]
+  -s, --separator SEP    Separator when using --rawtable [default: tab]
   -f, --force            Accept non standard extensions
   -v, --verbose          Verbose output
   -h, --help             Show this help
@@ -20,34 +63,85 @@ Options:
 
     verbose = args["--verbose"]
 
+    let
+      outputTable = newUnicodeTable()
     var
+      columns = newSeq[string]()
+      artifacts = newSeq[QiimeArtifact]()
       files = newSeq[string]()
       force = args["--force"]
+      rawtable = args["--rawtable"]
       separator = if $args["--separator"] == "tab": "\t"
                   else: $args["--separator"]
 
+    # Configure output columns
+    if args["--uuid"]:
+      columns.add("uuid")
+
+    if args["--abspath"]:
+      columns.add("abspath")
+    elif args["--basename"]:
+      columns.add("basename")
+    else:
+      columns.add("path")
+
+    if args["--datetime"]:
+      columns.add("date")
+
+    columns.add("format")
+    columns.add("type")
+
+    # Scan input files passed via CLI arguments: create a "files" list
     for file in args["<inputfile>"]:
-      # check existance
+      # check existence
       if not fileExists(file) and not symlinkExists(file):
         if verbose:
           stderr.writeLine("Skipping ", file, ": not found, or not a file")
         continue
-      if not force:
+      if force == false:
         let (dir, name, ext) = splitFile(file)
         if ext != ".qza" and ext != ".qzv":
           if verbose:
-            stderr.writeLine("Skipping ", file, ": extension (", ext, ") not valid (use --force)")
+            stderr.writeLine("Skipping ", $dir, "/", $name, ": extension (", $ext, ") not valid (use --force)")
           continue
-
       files.add(file)
 
+    # Scan files and populate "artifacts"
     for file in files:
-      let
-        dataFiles = getDataFiles(file)
-        art = readArtifact(file)
+      try:
+        let
+          dataFiles = getDataFiles(file)
+          art = readArtifact(file)
 
-      let dataString = if len(dataFiles) > 1: $len(dataFiles) & " files"
-                      else: dataFiles[0]
+        let dataString = if len(dataFiles) > 1: $len(dataFiles) & " files"
+                        else: dataFiles[0]
 
-      echo getID(file), separator, file , separator, dataString
-      echo $art
+
+        if verbose:
+          stderr.writeLine(getID(file), separator, file , separator, dataString)
+          stderr.writeLine($art)
+        
+        artifacts.add(art)
+      except Exception as e:
+        stderr.writeLine("ERROR: Unable to read artifact ", file, " (skipping):\n", e.msg)
+    
+    # Sort artifacts
+    artifacts.sort(
+      proc (x,y: QiimeArtifact): int =
+      result = cmp(x.artifacttype, y.artifacttype)
+      if result == 0:
+          result = cmp(x.uuid, y.uuid)
+      )
+
+    # Prepare output
+    if rawtable:
+      for artifact in artifacts:
+        printLine(artifact, columns)
+    else:
+      outputTable.separateRows = false
+      outputTable.setHeaders(generateHeader(columns))   
+      for artifact in artifacts:
+        outputTable.addRow(generateFields(artifact, columns))
+
+      printTable(outputTable)
+

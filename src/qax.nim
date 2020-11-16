@@ -6,7 +6,7 @@ import algorithm
 import docopt
  
 
-# Suite Version
+# Suite utilities
 import /qax_utils
 
 # Subprograms
@@ -22,9 +22,9 @@ proc main() =
 
   var
     helps = {  "list (default)": "list artifact(s) properties",
-               "extract (x)": "extract artifact files",
-               "provenance": "get artifacts provenance",
-               "citations (cit)": "extract citations",
+               "extract, x": "extract artifact files",
+               "provenance, p": "get artifacts provenance",
+               "citations, c": "extract citations",
                }.toTable
 
 

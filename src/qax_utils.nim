@@ -29,11 +29,11 @@ proc version*(): string =
 type
   QiimeArtifact* = object
     uuid*:  string
-    path*:string  
+    path*, basename*, inputpath*:  string  
     filedate*: Time
     date*, time*: string
     artifacttype*,format*, version*, archive*: string
-    data: seq[string]
+    data*: seq[string]
 
 
 
@@ -108,7 +108,9 @@ proc readArtifact*(path: string): QiimeArtifact =
     abspath = absolutePath(path)
 
   result.uuid = uuid
+  result.inputpath = path
   result.path = abspath
+  result.basename =  extractFilename(abspath)
   result.data = getDataFiles(path)
   result.filedate = getLastAccessTime(path)
   result.date = format(result.filedate, "yyyy-MM-dd", utc())
