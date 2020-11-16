@@ -2,6 +2,7 @@ sudo: required
 services:
   - docker
 before_install:
+  - apt install -y libzip-dev
   - docker pull nimlang/nim
 script:
   - docker run nimlang/nim nim --version
