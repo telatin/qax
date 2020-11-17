@@ -16,7 +16,8 @@ if [ "${NIM_RELEASE+x}" ]; then
  RELEASE=" -d:release ";
 fi
 
-nim c -d:static -w:on  -p:lib/yaml --opt:speed $RELEASE --verbosity:0 --hints:off -o:$DIR/../bin/qax${PLATFORM} $DIR/qax.nim || { echo "Compilation failed."; exit 1; }
+LIB=/usr/lib/x86_64-linux-gnu/libzip.a
+nim c -d:useLibzipSrc -w:on  -p:lib/yaml --opt:speed $RELEASE --verbosity:0 --hints:off -o:$DIR/../bin/qax${PLATFORM}   $DIR/qax.nim || { echo "Compilation failed."; exit 1; }
 #bash $DIR/../test/mini.sh
 
 $DIR/../bin/qax${PLATFORM} --help
