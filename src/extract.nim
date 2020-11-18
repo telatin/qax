@@ -29,7 +29,7 @@ Options:
     let
       outputTable = newUnicodeTable()
       keepOriginalName = args["--keepname"]
-      force = args["--force"]
+      force = false
     var
       columns = newSeq[string]()
       artifacts = newSeq[QiimeArtifact]()

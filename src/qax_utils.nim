@@ -5,6 +5,7 @@ import yaml
 import times
 #[ Versions
 
+0.1.1 List,Extract
 
 > VERSION
 QIIME 2
@@ -34,6 +35,7 @@ type
     date*, time*: string
     artifacttype*,format*, version*, archive*: string
     data*: seq[string]
+    parents*: seq[string]
 
 
 
@@ -44,7 +46,7 @@ proc echoVerbose*(msg: string, print: bool) =
 
 
 
-proc readFileFromZip(zipFileName, FileName: string): string =
+proc readFileFromZip*(zipFileName, FileName: string): string =
   var
     z: ZipArchive
     stream: PZipFileStream
@@ -82,16 +84,19 @@ proc extractPath*(zipFileName: string, outputDirectory: string): bool =
         var 
           destinationFilePath = parts.join("/")
           parent = parentDir(joinPath(outputDirectory, destinationFilePath))
-        stderr.writeLine("Parent: ", parent)
+        
+        # Create Dir
         try:
           createDir(parent)
         except Exception as e:
           stderr.write("Warning: Unable to create directory :", parent, "\n  ", e.msg, "\n")
-          return false          
+          return false    
+
+        # Extract      
         try:
           z.extractFile(file, joinPath(outputDirectory, destinationFilePath))
         except Exception as e:
-          stderr.write("Warning: Unable to extract <",file,"> to <", joinPath(outputDirectory, destinationFilePath),"> in <", parentDir(joinPath(outputDirectory, destinationFilePath)), ">:\n  ", e.msg, "\n")
+          stderr.write("Warning: Unable to extract \"",file,"\" to \"", joinPath(outputDirectory, destinationFilePath),"\":\n  ", e.msg, "\n")
           return false
         
     return true
@@ -129,7 +134,9 @@ format: BIOMV210DirFmt
 
 ]#
 
-  
+proc parseStamp*(stamp: string): DateTime =
+  let dateTimeString = stamp.split(".")
+  return parse(dateTimeString[0], "yyyy-MM-dd'T'HH:mm:ss")
 
 proc readArtifact*(path: string): QiimeArtifact =
   var
@@ -137,7 +144,6 @@ proc readArtifact*(path: string): QiimeArtifact =
     uuid = getID(path)
     abspath = absolutePath(path)
  
-
   result.uuid = uuid
   result.inputpath = path
   result.path = abspath
@@ -156,10 +162,10 @@ proc readArtifact*(path: string): QiimeArtifact =
       metadata = readFileFromZip(path, uuid & "/metadata.yaml")
     var
       versionLines = version.split("\n")
-    versionLines.delete(0)
+    versionLines.delete(0)  #Remove first line QIIME2
     
     let
-      metaYaml = loadDOM(metadata)
+      metaYaml    = loadDOM(metadata)
       versionYaml = loadDOM(versionLines.join("\n"))
 
     try:
@@ -175,9 +181,13 @@ proc readArtifact*(path: string): QiimeArtifact =
     except Exception as e:
       stderr.writeLine("Unable to parse Artifact metadata.yaml: ", e.msg)
 
+    for file in z.walkFiles:
+      let parts = file.split('/')
+      if parts[1] == "provenance" and parts[2] == "artifacts":
+        if parts[3] notin result.parents:
+          result.parents.add(parts[3])
 
-      
-    
+
 proc getBasename*(filename: string): string =
   let  fileParse = splitFile(filename)
 
