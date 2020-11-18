@@ -1,5 +1,5 @@
 import zip/zipfiles
-import os
+import os, strutils
 
 var
   art = paramStr(1)
@@ -9,5 +9,11 @@ var
 
 if not z.open(art):
   echo "Error opening"
+  quit(1)
 else:
-  z.extractFile(paramStr(2),  "./fi/fo")
+  for file in z.walkFiles:
+    var parts = file.split('/')
+    delete(parts, 0)
+    delete(parts, 0)
+    var dest = parts.join("/")
+    echo file, "\n -> ", parentDir(dest)

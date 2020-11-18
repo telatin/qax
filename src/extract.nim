@@ -12,11 +12,12 @@ proc extract(argv: var seq[string]): int =
     let args = docopt("""
 Usage: extract [options] [<inputfile> ...]
 
-Extract the artifact data
+Extract the artifact data. If multiple files are present, a new directory
+will be created (artifact name), otherwise the artifact name will be used
+to rename the single file (unless -k is specified).
 
 Options:
   -o, --outdir DIR       Output directory [default: .]
-  -f, --force            Overwrite existing output files [default: false]  
   -k, --keepname         Keep original file names instead of using artifact's basename [default: false]
   -v, --verbose          Verbose output
   -h, --help             Show this help
@@ -69,28 +70,37 @@ Options:
         stderr.writeLine("Unable to re-open: ", file, ". Unexpected error, terminating.")
         quit(2)
       
+      var
+        art: QiimeArtifact
       try:
-        let
-          art = readArtifact(file)
-        
-        if len(art.data) > 1:
-          stderr.writeLine("Not implemented")
-
-        elif len(art.data) == 1:
-          let
-            (dir, name, ext) = splitFile(art.data[0])
-            (adir, aname, aext) = splitFile(file)
-          var destFile = if keepOriginalName == true: art.data[0]
-            else: aname & ext
-          let
-            data = joinPath(art.uuid, joinPath("data", art.data[0]))
-            dest = joinPath($args["--outdir"], destFile)
-          if verbose:
-            stderr.writeLine("Extracting ", data, " -> ", dest)
-          z.extractFile(data, dest)
-        else:
-          stderr.writeLine("Skipping ", art.basename, ": no data found.")
+        art = readArtifact(file)
       except Exception as e:
-        stderr.writeLine("ERROR: Unable to read artifact ", file, " (skipping):\n", e.msg)
-    
+        stderr.writeLine("ERROR: Unable to extract artifact ", file, " (skipping):\n  ", e.msg)
+        continue
+
+
+
+      if len(art.data) > 1:
+        # Multiple files are present in data (eg: fastq reads or visualization)
+        let
+          (adir, aname, aext) = splitFile(file)
+          dest = joinPath($args["--outdir"], aname)
+        if not extractPath(file, dest):
+          stderr.writeLine("Unable to extract multi-file artifact: ", file, ", to :", dest)
+
+      elif len(art.data) == 1:
+        # A single file (eg: dna-sequences.fasta) is stored in /data
+        let
+          (dir, name, ext) = splitFile(art.data[0])
+          (adir, aname, aext) = splitFile(file)
+        var destFile = if keepOriginalName == true: art.data[0]
+          else: aname & ext
+        let
+          data = joinPath(art.uuid, joinPath("data", art.data[0]))
+          dest = joinPath($args["--outdir"], destFile)
+        if verbose:
+          stderr.writeLine("Extracting ", data, " -> ", dest)
+        z.extractFile(data, dest)
+      else:
+        stderr.writeLine("Skipping ", art.basename, ": no data found.")
  

@@ -1,11 +1,9 @@
 sudo: required
 service: docker
-addons:
-  apt:
-    packages:
-      - libzip-dev
+ 
 before_install:
-  - docker pull nimlang/nim
+  - docker pull nimlang/nim:1.2.4-alpine-regular
 script:
   - docker run nimlang/nim nim --version
-  - docker run -v "$(pwd):/project" -w /project nimlang/nim sh -c "nimble refresh && nimble qax &&  bash test/all.sh "
+  - docker run -v "$(pwd):/project" -w /project --rm nimlang/nim:1.2.4-alpine-regular sh -c "apk add --no-cache zip zlib-dev && nimble install -y zip docopt terminaltables && sh src/build.sh &&  sh test/all.sh"
+ 

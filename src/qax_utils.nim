@@ -68,6 +68,33 @@ proc getDataFiles*(zipFileName: string): seq[string] =
       if parts[1] == "data":
         result.add(parts[2])
 
+proc extractPath*(zipFileName: string, outputDirectory: string): bool =
+  var z: ZipArchive
+  if not z.open(zipFileName):
+    stderr.writeLine("Warning: unable to read compressed file: ", zipFileName)
+    return false
+  else:  
+    for file in z.walkFiles:
+      var parts = file.split('/')
+      delete(parts, 0)
+      if parts[0] == "data":
+        delete(parts, 0)
+        var 
+          destinationFilePath = parts.join("/")
+          parent = parentDir(joinPath(outputDirectory, destinationFilePath))
+        stderr.writeLine("Parent: ", parent)
+        try:
+          createDir(parent)
+        except Exception as e:
+          stderr.write("Warning: Unable to create directory :", parent, "\n  ", e.msg, "\n")
+          return false          
+        try:
+          z.extractFile(file, joinPath(outputDirectory, destinationFilePath))
+        except Exception as e:
+          stderr.write("Warning: Unable to extract <",file,"> to <", joinPath(outputDirectory, destinationFilePath),"> in <", parentDir(joinPath(outputDirectory, destinationFilePath)), ">:\n  ", e.msg, "\n")
+          return false
+        
+    return true
 
 proc getID*(zipFileName: string): string =
   var z: ZipArchive
@@ -102,20 +129,7 @@ format: BIOMV210DirFmt
 
 ]#
 
-proc newArtifact(a: var QiimeArtifact) =
-  a.uuid = ""
-  a.path = ""
-  a.basename = ""
-  a.inputpath = ""
-  a.name = ""
-  a.filedate = getTime()
-  a.date = ""
-  a.time = ""
-  a.artifacttype = ""
-  a.format = ""
-  a.version = ""
-  a.archive = ""
-  a.data = @[]
+  
 
 proc readArtifact*(path: string): QiimeArtifact =
   var

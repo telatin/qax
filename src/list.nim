@@ -26,6 +26,9 @@ proc generateHeader(columns: seq[string]): seq[string] =
   if "date" in columns:
     result.add("Date")
 
+  if "files" in columns:
+    result.add("Files")
+
 
 proc generateFields(artifact: QiimeArtifact, columns: seq[string]): seq[string] =
   if "uuid" in columns:
@@ -47,30 +50,39 @@ proc generateFields(artifact: QiimeArtifact, columns: seq[string]): seq[string] 
   if "date" in columns:
     result.add($artifact.date & ";" & $artifact.time)
 
+    if "files" in columns:
+      result.add($len(artifact.data))
+
 proc printLine(artifact: QiimeArtifact, columns: seq[string], sep: string) =
   echo $artifact.uuid & sep &
     $artifact.path & sep  &
     $artifact.artifacttype & sep  &
     $artifact.format & sep &
     $artifact.version & sep &
-    $artifact.date
+    $artifact.date & sep &
+    $len(artifact.data)
     
 proc list(argv: var seq[string]): int =
     let args = docopt("""
 Usage: list [options] [<inputfile> ...]
 
 Options:
-  -a, --abspath          Show absolute paths [default: false]
-  -a, --all                  Show all fields [default: false]
+  --abs                  Show absolute paths [default: false]
+  -a, --all              Show all fields [default: false]
   -b, --basename         Use basename instead of path [default: false]
+  -s, --sortby SORT      Column to sort (uuid, type, format, date) [default: type]
+  -f, --force            Accept non standard extensions
+  --verbose              Verbose output
+  --help                 Show this help
+
+Nice output (default):
   -d, --datetime         Show artifact's date time [default: false]
   -u, --uuid             Show uuid [default: false]
+
+Raw table output:
   -r, --rawtable         Print a CSV table (-s) with all fields [default: false]   
-  -s, --sortby SORT      Column to sort (uuid, type, format, date) [default: type]
+  -h, --header           Print header [default: false]
   -z, --separator SEP    Separator when using --rawtable [default: tab]
-  -f, --force            Accept non standard extensions
-  -v, --verbose          Verbose output
-  -h, --help             Show this help
 
   """, version=version(), argv=argv)
 
@@ -91,24 +103,27 @@ Options:
       sortby = if $args["--sortby"] in validsort: $args["--sortby"]
                else: "type"
     # Configure output columns
-    if args["--uuid"] or args["--all"]:
+    if args["--uuid"] or args["--all"] or args["--rawtable"]:
       columns.add("uuid")
 
-    if args["--abspath"]:
+    if args["--abs"]:
       columns.add("abspath")
     elif args["--basename"]:
       columns.add("basename")
     else:
       columns.add("path")
 
-    if args["--datetime"] or args["--all"]:
+    if args["--datetime"] or args["--all"] or args["--rawtable"]:
       columns.add("date")
 
     columns.add("format")
     columns.add("type")
 
-    if args["--all"]:
+    if args["--all"] or args["--rawtable"]:
       columns.add("version")
+
+    if args["--all"] or args["--rawtable"]:
+      columns.add("files")
 
     # Scan input files passed via CLI arguments: create a "files" list
     for file in args["<inputfile>"]:
@@ -195,6 +210,9 @@ Options:
 
     # Prepare output
     if rawtable:
+      if args["--header"]:
+        let c = @["ID", "Path", "Type", "Format", "Version", "Date", "File"]
+        echo "#", c.join(separator)
       for artifact in artifacts:
         printLine(artifact, columns, separator)
     else:
