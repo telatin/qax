@@ -1,6 +1,10 @@
 #!/bin/bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+if [ -d "/project/src" ];
+then
+  DIR="/project/src/"
+fi
 PLATFORM=""
 if [[ $(uname) == "Darwin" ]]; then
  PLATFORM="_mac"

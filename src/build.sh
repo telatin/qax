@@ -3,9 +3,12 @@ set -exuo pipefail
 OLDWD=$PWD
 
 PLATFORM=""
+STAT=""
 if [[ $(uname) == 'Darwin' ]];
 then
  PLATFORM="_mac"
+else
+ STAT=" --passl:\"-static\" "
 fi
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 if [ -d "/project/src" ];
@@ -21,7 +24,7 @@ if [ "${NIM_RELEASE+x}" ]; then
 fi
 
 
-nim c -d:useLibzipSrc -w:on  -p:lib/yaml --opt:speed $RELEASE --verbosity:0 --hints:off -o:$DIR/../bin/qax${PLATFORM}   $DIR/qax.nim || { echo "Compilation failed."; exit 1; }
+nim c -d:useLibzipSrc -w:on $STAT -p:lib/yaml --opt:speed $RELEASE --verbosity:0 --hints:off -o:$DIR/../bin/qax${PLATFORM}   $DIR/qax.nim || { echo "Compilation failed."; exit 1; }
 
 $DIR/../bin/qax${PLATFORM} --help
 $DIR/../bin/qax${PLATFORM} $DIR/../input/*
