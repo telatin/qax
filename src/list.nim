@@ -20,6 +20,9 @@ proc generateHeader(columns: seq[string]): seq[string] =
   
   result.add("Type")
   result.add("Format")
+  if "version" in columns:
+    result.add("Version")
+
   if "date" in columns:
     result.add("Date")
 
@@ -37,24 +40,34 @@ proc generateFields(artifact: QiimeArtifact, columns: seq[string]): seq[string] 
   
   result.add($artifact.artifacttype)
   result.add($artifact.format)
+
+  if "version" in columns:
+    result.add($artifact.version)
+
   if "date" in columns:
     result.add($artifact.date & ";" & $artifact.time)
 
-proc printLine(artifact: QiimeArtifact, columns: seq[string]) =
-  echo $artifact
-
+proc printLine(artifact: QiimeArtifact, columns: seq[string], sep: string) =
+  echo $artifact.uuid & sep &
+    $artifact.path & sep  &
+    $artifact.artifacttype & sep  &
+    $artifact.format & sep &
+    $artifact.version & sep &
+    $artifact.date
+    
 proc list(argv: var seq[string]): int =
     let args = docopt("""
 Usage: list [options] [<inputfile> ...]
 
 Options:
   -a, --abspath          Show absolute paths [default: false]
+  -a, --all                  Show all fields [default: false]
   -b, --basename         Use basename instead of path [default: false]
   -d, --datetime         Show artifact's date time [default: false]
   -u, --uuid             Show uuid [default: false]
-  -r, --rawtable         Don't print a Unicode table   
-  -s, --sortby SORT      Column to sort (uuid, type, format, date) [default: ]
-  -s, --separator SEP    Separator when using --rawtable [default: tab]
+  -r, --rawtable         Print a CSV table (-s) with all fields [default: false]   
+  -s, --sortby SORT      Column to sort (uuid, type, format, date) [default: type]
+  -z, --separator SEP    Separator when using --rawtable [default: tab]
   -f, --force            Accept non standard extensions
   -v, --verbose          Verbose output
   -h, --help             Show this help
@@ -65,6 +78,7 @@ Options:
 
     let
       outputTable = newUnicodeTable()
+      validsort   = @["type", "format", "date", "uuid", "name", "path"]
     var
       columns = newSeq[string]()
       artifacts = newSeq[QiimeArtifact]()
@@ -74,8 +88,10 @@ Options:
       separator = if $args["--separator"] == "tab": "\t"
                   else: $args["--separator"]
 
+      sortby = if $args["--sortby"] in validsort: $args["--sortby"]
+               else: "type"
     # Configure output columns
-    if args["--uuid"]:
+    if args["--uuid"] or args["--all"]:
       columns.add("uuid")
 
     if args["--abspath"]:
@@ -85,26 +101,34 @@ Options:
     else:
       columns.add("path")
 
-    if args["--datetime"]:
+    if args["--datetime"] or args["--all"]:
       columns.add("date")
 
     columns.add("format")
     columns.add("type")
+
+    if args["--all"]:
+      columns.add("version")
 
     # Scan input files passed via CLI arguments: create a "files" list
     for file in args["<inputfile>"]:
       # check existence
       if not fileExists(file) and not symlinkExists(file):
         if verbose:
-          stderr.writeLine("Skipping ", file, ": not found, or not a file")
+          stderr.writeLine("Skipping \"", file, "\": not found, or not a file")
         continue
       if force == false:
         let (dir, name, ext) = splitFile(file)
         if ext != ".qza" and ext != ".qzv":
           if verbose:
-            stderr.writeLine("Skipping ", $dir, "/", $name, ": extension (", $ext, ") not valid (use --force)")
+            stderr.writeLine("Skipping \"", $dir, "/", $name, "\": extension (", $ext, ") not valid (use --force)")
           continue
       files.add(file)
+
+    # Check at least one file was added
+    if len(files) == 0:
+      stderr.writeLine("No file was found (check with --verbose)")
+      quit(0)
 
     # Scan files and populate "artifacts"
     for file in files:
@@ -126,17 +150,53 @@ Options:
         stderr.writeLine("ERROR: Unable to read artifact ", file, " (skipping):\n", e.msg)
     
     # Sort artifacts
-    artifacts.sort(
-      proc (x,y: QiimeArtifact): int =
-      result = cmp(x.artifacttype, y.artifacttype)
-      if result == 0:
-          result = cmp(x.uuid, y.uuid)
-      )
+    if sortby == "type":
+      artifacts.sort(
+        proc (x,y: QiimeArtifact): int =
+        result = cmp(x.artifacttype, y.artifacttype)
+        if result == 0:
+            result = cmp(x.uuid, y.uuid)
+        )
+    elif sortby == "date":
+      artifacts.sort(
+        proc (x,y: QiimeArtifact): int =
+        result = cmp(x.date, y.date)
+        if result == 0:
+            result = cmp(x.uuid, y.uuid)
+        )
+    elif sortby == "format":
+      artifacts.sort(
+        proc (x,y: QiimeArtifact): int =
+        result = cmp(x.format, y.format)
+        if result == 0:
+            result = cmp(x.uuid, y.uuid)
+        )
+    elif sortby == "uuid":
+      artifacts.sort(
+        proc (x,y: QiimeArtifact): int =
+        result = cmp(x.uuid, y.uuid)
+        if result == 0:
+            result = cmp(x.uuid, y.uuid)
+        )
+    elif sortby == "name":
+      artifacts.sort(
+        proc (x,y: QiimeArtifact): int =
+        result = cmp(x.basename, y.basename)
+        if result == 0:
+            result = cmp(x.uuid, y.uuid)
+        )
+    elif sortby == "path":
+      artifacts.sort(
+        proc (x,y: QiimeArtifact): int =
+        result = cmp(x.path, y.path)
+        if result == 0:
+            result = cmp(x.uuid, y.uuid)
+        )
 
     # Prepare output
     if rawtable:
       for artifact in artifacts:
-        printLine(artifact, columns)
+        printLine(artifact, columns, separator)
     else:
       outputTable.separateRows = false
       outputTable.setHeaders(generateHeader(columns))   

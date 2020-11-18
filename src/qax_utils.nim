@@ -29,7 +29,7 @@ proc version*(): string =
 type
   QiimeArtifact* = object
     uuid*:  string
-    path*, basename*, inputpath*:  string  
+    path*, basename*, inputpath*, name*:  string  
     filedate*: Time
     date*, time*: string
     artifacttype*,format*, version*, archive*: string
@@ -101,16 +101,35 @@ type: FeatureTable[Frequency]
 format: BIOMV210DirFmt
 
 ]#
+
+proc newArtifact(a: var QiimeArtifact) =
+  a.uuid = ""
+  a.path = ""
+  a.basename = ""
+  a.inputpath = ""
+  a.name = ""
+  a.filedate = getTime()
+  a.date = ""
+  a.time = ""
+  a.artifacttype = ""
+  a.format = ""
+  a.version = ""
+  a.archive = ""
+  a.data = @[]
+
 proc readArtifact*(path: string): QiimeArtifact =
   var
     z: ZipArchive
     uuid = getID(path)
     abspath = absolutePath(path)
+ 
 
   result.uuid = uuid
   result.inputpath = path
   result.path = abspath
   result.basename =  extractFilename(abspath)
+  let (dir, name, ext) = splitFile(path)
+  result.name = name
   result.data = getDataFiles(path)
   result.filedate = getLastAccessTime(path)
   result.date = format(result.filedate, "yyyy-MM-dd", utc())

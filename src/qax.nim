@@ -12,9 +12,13 @@ import /qax_utils
 # Subprograms
 
 include /list
+include /cite
+include /extract
 
 var progs = {
        "ls"  : list, "list" : list,
+       "x"   : extract, "extract": extract,
+       "c"   : cite,    "citations": cite,
 
 }.toTable
 
