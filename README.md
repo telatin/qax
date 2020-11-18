@@ -1,6 +1,8 @@
 # :package: Qiime2 Artifact eXtractor
 
 [![Build Status](https://travis-ci.org/telatin/qax.svg?branch=main)](https://travis-ci.org/telatin/qax)
+![Repository Size](https://img.shields.io/github/languages/code-size/telatin/qax)
+[![Commits since](https://img.shields.io/github/commits-since/telatin/qax/latest/master)](https://github.com/telatin/qax/releases)
 
 ## :book: Introduction
 
