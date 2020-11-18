@@ -1,5 +1,7 @@
 # :package: Qiime2 Artifact eXtractor
 
+[![Build Status](https://travis-ci.org/telatin/qax.svg?branch=main)](https://travis-ci.org/telatin/qax)
+
 ## :book: Introduction
 
 Qiime2 is one of the most popular software used to analyze the output of metabarcoding experiment, and it introduced a unique data format in the bioinformatics scenario: the “_Qiime2 artifact_”.
