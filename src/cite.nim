@@ -27,7 +27,7 @@ proc dereplicateTeX(bib: string): string =
 
 proc cite(argv: var seq[string]): int =
     let args = docopt("""
-Usage: cite [options] [<inputfile> ...]
+Usage: citations [options] [<inputfile> ...]
 
 Options:
   -o, --output FILE      Save BibTeX citation to FILE

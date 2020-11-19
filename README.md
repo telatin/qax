@@ -6,7 +6,7 @@
 
 ## :book: Introduction
 
-<img alt="seqfu logo" align="right" width="200" height="200" src="https://raw.githubusercontent.com/telatin/qax/master/docs/qax.png">
+<img alt="qax logo" align="right" width="200" height="200" src="https://raw.githubusercontent.com/telatin/qax/main/docs/qax.png">
 
 Qiime2 is one of the most popular software used to analyze the output of metabarcoding experiment, and it introduced a unique data format in the bioinformatics scenario: the “_Qiime2 artifact_”.
 
@@ -25,13 +25,12 @@ qax [program] [arguments]
 ```
 QAX - Qiime2 Artifact eXtractor
 
+	• list (default)      : list artifact(s) properties
 	• citations, c        : extract citations
 	• extract, x          : extract artifact files
-	• list (default)      : list artifact(s) properties
 	• provenance, p       : get artifacts provenance
 
 ```
-
 
 
 ### `qax list`
@@ -41,22 +40,10 @@ QAX - Qiime2 Artifact eXtractor
 
 This is the default module, and can be used to list the properties of one or more artifacts.
 
-```
-qax [list] [options] artifact1 [artifact2...]
-
-
-Options:
-  -a, --abspath          Show absolute paths [default: false]
-  -b, --basename         Use basename instead of path [default: false]
-  -d, --datetime         Show artifact's date time [default: false]
-  -u, --uuid             Show uuid [default: false]
-  -r, --rawtable         Don't print a Unicode table   
-  -s, --sortby SORT      Column to sort (uuid, type, format, date) [default: ]
-  -s, --separator SEP    Separator when using --rawtable [default: tab]
-  -f, --force            Accept non standard extensions
-  -v, --verbose          Verbose output
-  -h, --help             Show this help
-```
+Some features:
+* Supports multiple files at once
+* 100X times faster than Qiime2
+* Can be used to find an artifact given the ID 
 
 Example:
 ```
