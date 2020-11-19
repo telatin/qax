@@ -5,6 +5,8 @@ import yaml
 import times
 #[ Versions
 
+0.3.0 Citations
+0.2.0 Provenance
 0.1.1 List,Extract
 
 > VERSION
@@ -25,7 +27,7 @@ var
 
 
 proc version*(): string =
-  return "0.1.0"
+  return "0.3.0"
 
 type
   QiimeArtifact* = object

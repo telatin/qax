@@ -1,60 +1,50 @@
 
 import strformat
 import tables, strutils, times, algorithm, terminaltables
-from os import fileExists
+import os
 import docopt
 import ./qax_utils
  
+proc dereplicateTeX(bib: string): string =
+  var
+    lines = bib.split("\n")
+    articles = initTable[string, string]()
+    buffer = ""
+    title = ""
 
+  lines.add("@")
+  for line in lines:
+    if len(line) >= 1 and line[0] == '@':
+      if len(title) > 0:
+        articles[title] = buffer
+      buffer = line & "\n"
+      title = line
+    else:
+      buffer &= line & "\n"
+  
+  for header in articles.keys:
+    result &= articles[header]
 
 proc cite(argv: var seq[string]): int =
     let args = docopt("""
-Usage: list [options] [<inputfile> ...]
+Usage: cite [options] [<inputfile> ...]
 
 Options:
-  -a, --abspath          Show absolute paths [default: false]
-  --all                  Show all fields [default: false]
-  -b, --basename         Use basename instead of path [default: false]
-  -d, --datetime         Show artifact's date time [default: false]
-  -u, --uuid             Show uuid [default: false]
-  -r, --rawtable         Don't print a Unicode table   
-  -s, --sortby SORT      Column to sort (uuid, type, format, date) [default: ]
-  -s, --separator SEP    Separator when using --rawtable [default: tab]
-  -f, --force            Accept non standard extensions
+  -o, --output FILE      Save BibTeX citation to FILE
+  -r, --recurse-parents  Retrieve BibTeX citations also from parents
+  -f, --force-artifacts  Try to parse artifacts with non canonical extensions
   -v, --verbose          Verbose output
   -h, --help             Show this help
 
   """, version=version(), argv=argv)
 
     verbose = args["--verbose"]
-
     let
-      outputTable = newUnicodeTable()
+      force = args["--force-artifacts"]
+      recurse = args["--recurse-parents"]
+ 
     var
-      columns = newSeq[string]()
-      artifacts = newSeq[QiimeArtifact]()
-      files = newSeq[string]()
-      force = args["--force"]
-      rawtable = args["--rawtable"]
-      separator = if $args["--separator"] == "tab": "\t"
-                  else: $args["--separator"]
-
-    # Configure output columns
-    if args["--uuid"] or args["--all"]:
-      columns.add("uuid")
-
-    if args["--abspath"]:
-      columns.add("abspath")
-    elif args["--basename"]:
-      columns.add("basename")
-    else:
-      columns.add("path")
-
-    if args["--datetime"] or args["--all"]:
-      columns.add("date")
-
-    columns.add("format")
-    columns.add("type")
+       files = newSeq[string]()
 
     # Scan input files passed via CLI arguments: create a "files" list
     for file in args["<inputfile>"]:
@@ -76,23 +66,43 @@ Options:
       stderr.writeLine("No files specified / found.")
       quit(0)
 
+    # Prepare list
+    var
+      bibliographyRaw = ""
     # Scan files and populate "artifacts"
     for file in files:
       try:
         let
-          dataFiles = getDataFiles(file)
           art = readArtifact(file)
-
-        let dataString = if len(dataFiles) > 1: $len(dataFiles) & " files"
-                        else: dataFiles[0]
-
-
         if verbose:
-          stderr.writeLine(getID(file), separator, file , separator, dataString)
-          stderr.writeLine($art)
+          stderr.writeLine("Parsing: ",$art)
         
-        artifacts.add(art)
+        let 
+          biblioFile = joinPath(art.uuid, "provenance/citations.bib")
+          bibliography = readFileFromZip(file, biblioFile)
+        
+        bibliographyRaw &= bibliography
+
+        if args["--recurse-parents"]:
+          for parent in art.parents:
+            try:
+              let
+                biblioFile = joinPath(art.uuid, joinPath("provenance/artifacts", joinPath(parent, "citations.bib")))
+                bibliography = readFileFromZip(file, biblioFile)
+              bibliographyRaw &= bibliography
+            except Exception as e:
+              stderr.writeLine("ERROR: Unable to recurse artifact ", file, " at ", parent)
       except Exception as e:
         stderr.writeLine("ERROR: Unable to read artifact ", file, " (skipping):\n", e.msg)
     
- 
+    
+    if args["--output"]:
+      let text = dereplicateTeX(bibliographyRaw)
+      try:
+        writeFile($args["--output"], text)
+      except Exception as e:
+        stderr.writeLine("[provenance] ERROR: Unable to write output to:" , $args["--output"])
+        echo text
+        quit(1)
+    else:
+      echo dereplicateTeX(bibliographyRaw)

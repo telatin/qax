@@ -34,7 +34,7 @@ proc main() =
 
 
   var args = commandLineParams()
-  if len(args) < 1: # or not progs.contains(args[0]):
+  if len(args) < 1 or  args[0].contains("help"): # or not progs.contains(args[0]):
     # no first argument: print help
     var
       hkeys1 = toSeq(keys(helps))
