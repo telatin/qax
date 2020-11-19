@@ -6,6 +6,8 @@
 
 ## :book: Introduction
 
+<img alt="seqfu logo" align="right" width="200" height="200" src="https://raw.githubusercontent.com/telatin/qax/master/docs/qax.png">
+
 Qiime2 is one of the most popular software used to analyze the output of metabarcoding experiment, and it introduced a unique data format in the bioinformatics scenario: the “_Qiime2 artifact_”.
 
 Qiime2 artifacts are structured compressed archives containing a dataset (_e.g._, FASTQ reads, representative sequences in FASTA format, a phylogenetic tree in Newick format, etc.) and an exhaustive set of metadata (including the command that generated it, information on the execution environment, citations on the used software, and all the metadata of the artifacts used to produce it). 
@@ -30,7 +32,12 @@ QAX - Qiime2 Artifact eXtractor
 
 ```
 
+
+
 ### `qax list`
+
+
+* [**qax list** full documentation](docs/list.md)
 
 This is the default module, and can be used to list the properties of one or more artifacts.
 
@@ -65,12 +72,20 @@ qax_mac  -b -u input/*.*
 
 ### `qax extract`
 
+
+* [**qax extract** full documentation](docs/extract.md)
+
 This program extract the content of an artifact. By default, if a single file is present it will be extracted in the specified path. If multiple files are present, a directory containing them will be created instead.
 
 ### `qax citations`
 
+* [**qax citeations** full documentation](docs/cite.md)
+
 Each Qiime module provides the citations for the software and resources that it uses, storing the citations in BibTeX format inside the artifacts. The cite module allows to extract all the citations from a list of artifacts, removing the duplicates, thus effectively allowing to prepare the bibliography for a complete Qiime2 analysis.
 
 ### `qax provenance`
+
+* [**qax provenance** full documentation](docs/provenance.md)
+
 
 This program allows to print the provenance of an artifact.
