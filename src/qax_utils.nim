@@ -3,9 +3,15 @@ import streams
 import  strutils, os, strformat
 import yaml
 import times
+
+
+proc version*(): string =
+  return "0.5.0"
+
 #[ Versions
 
-0.4.0 Fixes
+0.5.0 Improved unit tests; BioConda
+0.4.0 Fixes; Continuous integration (TravisCI)
 0.3.0 Citations
 0.2.0 Provenance
 0.1.1 List,Extract
@@ -24,11 +30,7 @@ format: BIOMV210DirFmt
 # Common variables for switches
 var
    verbose*:        bool    # verbose mode
-   check*:          bool    # enable basic checks
 
-
-proc version*(): string =
-  return "0.4.0"
 
 type
   QiimeArtifact* = object

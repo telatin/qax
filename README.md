@@ -1,8 +1,10 @@
 # :package: Qiime2 Artifact eXtractor
 
 [![Build Status](https://travis-ci.org/telatin/qax.svg?branch=main)](https://travis-ci.org/telatin/qax)
-![Repository Size](https://img.shields.io/github/languages/code-size/telatin/qax)
+[![Repository Size](https://img.shields.io/github/languages/code-size/telatin/qax)](https://github.com/telatin/qax)
 [![Latest release](https://img.shields.io/github/v/release/telatin/qax)](https://github.com/telatin/qax/releases)
+[![Available via BioConda](https://img.shields.io/conda/vn/bioconda/qax)](https://bioconda.github.io/recipes/qax/README.html)
+[![BioConda Downloads](https://img.shields.io/conda/dn/bioconda/qax)](https://bioconda.github.io/recipes/qax/README.html)
 
 ## :book: Introduction
 
@@ -66,7 +68,7 @@ qax_mac -b -u input/*.*
 ### extract
 
 
-* See [**qax extract*See full documentation](docs/extract.md)
+* See [**qax extract** full documentation](docs/extract.md)
 
 This program extract the content of an artifact. By default, if a single file is present it will be extracted in the specified path. If multiple files are present, a directory containing them will be created instead.
 
