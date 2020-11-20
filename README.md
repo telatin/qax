@@ -6,7 +6,7 @@
 
 ## :book: Introduction
 
-<img alt="qax logo" align="right" width="200" height="200" src="https://raw.githubusercontent.com/telatin/qax/main/docs/qax.png">
+<img alt="qax logo" align="right" width="333" height="153" src="https://raw.githubusercontent.com/telatin/qax/main/docs/qax.png">
 
 Qiime2 is one of the most popular software used to analyze the output of metabarcoding experiment, and it introduced a unique data format in the bioinformatics scenario: the “_Qiime2 artifact_”.
 
@@ -14,29 +14,35 @@ Qiime2 artifacts are structured compressed archives containing a dataset (_e.g._
 
 While artifacts can improve the shareability and reproducibility of Qiime workflows, they are less easily integrated with general bioinformatics pipelines, and even accessing metadata in the artifacts requires the full Qiime2 installation (not to mention that every release of Qiime2 will produce incompatible artifacts). Qiime Artifact Extractor (qxa) allows to easily interface with Qiime2 artifacts from the command line, without needing the full Qiime2 environment installed. 
 
+
+## :floppy_disk: Download
+
+Pre-compiled binaries are the fastest and easiest way to get _qax_.
+
+```
+# From linux
+wget "https://github.com/telatin/qax/raw/main/bin/qax"
+chmod +x qax
+
+# From macOS
+wget -O qax "https://github.com/telatin/qax/raw/main/bin/qax_mac"
+chmod +x qax
+```
+
 ## :book: Usage
 
-`qax` has four subprograms:
+`qax` has four subprograms (general syntax is `qax [program] [program-arguments]`):
 
-```text
-qax [program] [arguments]
-```
-
-```
-QAX - Qiime2 Artifact eXtractor
-
-	• list (default)      : list artifact(s) properties
-	• citations, c        : extract citations
-	• extract, x          : extract artifact files
-	• provenance, p       : get artifacts provenance
-
-```
+- **list** (default): list artifact(s) properties
+- **citations**: extract citations in BibTeX format
+- **extract**: extract artifact _data_ files
+- **provenance**: describe artifact provenance, or generate its graph
 
 
-### `qax list`
+### list
 
 
-* [**qax list** full documentation](docs/list.md)
+* See [**qax list** full documentation](docs/list.md)
 
 This is the default module, and can be used to list the properties of one or more artifacts.
 
@@ -47,7 +53,7 @@ Some features:
 
 Example:
 ```
-qax_mac  -b -u input/*.*
+qax_mac -b -u input/*.*
 ┌───────────────────────────┬────────────────┬─────────────────────────┬─────────────────────────────┐
 │ ID                        │ Basename       │ Type                    │ Format                      │
 ├───────────────────────────┼────────────────┼─────────────────────────┼─────────────────────────────┤
@@ -57,22 +63,21 @@ qax_mac  -b -u input/*.*
 └───────────────────────────┴────────────────┴─────────────────────────┴─────────────────────────────┘
 ```
 
-### `qax extract`
+### extract
 
 
-* [**qax extract** full documentation](docs/extract.md)
+* See [**qax extract*See full documentation](docs/extract.md)
 
 This program extract the content of an artifact. By default, if a single file is present it will be extracted in the specified path. If multiple files are present, a directory containing them will be created instead.
 
-### `qax citations`
+### citations
 
-* [**qax citeations** full documentation](docs/cite.md)
+* See [**qax citeations** full documentation](docs/cite.md)
 
 Each Qiime module provides the citations for the software and resources that it uses, storing the citations in BibTeX format inside the artifacts. The cite module allows to extract all the citations from a list of artifacts, removing the duplicates, thus effectively allowing to prepare the bibliography for a complete Qiime2 analysis.
 
-### `qax provenance`
+### provenance
 
-* [**qax provenance** full documentation](docs/provenance.md)
+* See [**qax provenance** full documentation](docs/provenance.md)
 
-
-This program allows to print the provenance of an artifact.
+This program allows to print the provenance of an artifact, or to produce a [publication grade graph](docs/qax-provenance.png) of the provenance.

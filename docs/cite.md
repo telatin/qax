@@ -1,6 +1,7 @@
 # qax citations
 
 This subprogram will print the BibTeX citations (deduplicated) from a list of files.
+Can be abbreviated with **c** (_e. g._, `qax c ...`).
 
 ### Synopsis:
 

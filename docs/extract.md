@@ -1,6 +1,7 @@
 # qax extract
 
 This subprogram will extract data files from artifacts.
+Can be abbreviated with **x** (_e. g._, `qax x ...`).
 
 ![qax extract](qax-extract.png)
 

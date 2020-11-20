@@ -1,6 +1,6 @@
 
-import zip/zipfiles
-import tables, strutils, algorithm, terminaltables, yaml
+ 
+import tables, strutils, algorithm, yaml
 import os, osproc
 import docopt
 import ./qax_utils
