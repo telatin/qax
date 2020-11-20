@@ -41,7 +41,7 @@ chmod +x qax
 - **provenance**: describe artifact provenance, or generate its graph
 
 
-### list
+### :page_facing_up: list
 
 
 * See [**qax list** full documentation](docs/list.md)
@@ -65,20 +65,20 @@ qax_mac -b -u input/*.*
 └───────────────────────────┴────────────────┴─────────────────────────┴─────────────────────────────┘
 ```
 
-### extract
+### :page_facing_up: extract
 
 
 * See [**qax extract** full documentation](docs/extract.md)
 
 This program extract the content of an artifact. By default, if a single file is present it will be extracted in the specified path. If multiple files are present, a directory containing them will be created instead.
 
-### citations
+### :page_facing_up: citations
 
 * See [**qax citeations** full documentation](docs/cite.md)
 
 Each Qiime module provides the citations for the software and resources that it uses, storing the citations in BibTeX format inside the artifacts. The cite module allows to extract all the citations from a list of artifacts, removing the duplicates, thus effectively allowing to prepare the bibliography for a complete Qiime2 analysis.
 
-### provenance
+### :page_facing_up: provenance
 
 * See [**qax provenance** full documentation](docs/provenance.md)
 

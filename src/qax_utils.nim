@@ -6,25 +6,18 @@ import times
 
 
 proc version*(): string =
-  return "0.5.0"
+  return "0.6.0"
 
 #[ Versions
 
+0.6.0 qax_utils refactoring
 0.5.0 Improved unit tests; BioConda
 0.4.0 Fixes; Continuous integration (TravisCI)
 0.3.0 Citations
 0.2.0 Provenance
 0.1.1 List,Extract
 
-> VERSION
-QIIME 2
-archive: 5
-framework: 2019.10.0
-
-> metadata.yaml
-uuid: 313a0cf3-e2ec-48cf-95af-befad4ebf2f3
-type: FeatureTable[Frequency]
-format: BIOMV210DirFmt
+ 
 ]#
 
 # Common variables for switches
@@ -32,6 +25,7 @@ var
    verbose*:        bool    # verbose mode
 
 
+# Qiime Artifact: object with metadata
 type
   QiimeArtifact* = object
     uuid*:  string
@@ -42,11 +36,6 @@ type
     data*: seq[string]
     parents*: seq[string]
 
-
-
-proc echoVerbose*(msg: string, print: bool) =
-  if print:
-    stderr.writeLine(" * ", msg)
 
 
 
@@ -203,38 +192,4 @@ proc getBasename*(filename: string): string =
     return fileParse[1]
   #( dir, filenameNoExt, extension) = splitFile(filename)
   #(sampleId, direction) = extractTag(filenameNoExt, pattern1, pattern2)
-
-proc extractTag*(filename: string, patternFor: string, patternRev: string): (string, string) =
-    if patternFor == "auto":
-      # automatic guess
-      var basename = split(filename, "_R1.")
-      if len(basename) > 1:
-        return (basename[0], "R1")
-      basename = split(filename, "_R1_")
-      if len(basename) > 1:
-        return (basename[0], "R1")
-      basename = split(filename, "_1.")
-      if len(basename) > 1:
-        return (basename[0], "R1")
-    else:
-      var basename = split(filename, patternFor)
-      if len(basename) > 1:
-        return (basename[0], "R1")
-
-    if patternFor == "auto":
-      # automatic guess
-      var basename = split(filename, "_R2.")
-      if len(basename) > 1:
-        return (basename[0], "R2")
-      basename = split(filename, "_R2_")
-      if len(basename) > 1:
-        return (basename[0], "R2")
-      basename = split(filename, "_2.")
-      if len(basename) > 1:
-        return (basename[0], "R2")
-    else:
-      var basename = split(filename, patternFor)
-      if len(basename) > 1:
-        return (basename[0], "R2")
-
-    return (filename, "SE")
+ 
