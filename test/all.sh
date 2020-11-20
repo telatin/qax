@@ -3,7 +3,7 @@ OK="$(tput setaf 2)OK$(tput setaf 0)"
 KO="$(tput setaf 5)FAIL$(tput setaf 0)"
 B=$(tput bold)
 N=$(tput sgr0)
-echo "$(tput setaf 3)    ----- Testing ${B}QAX$N $(tput setaf 3) ----- $(tput setaf 0)"
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 if [ -d "/project/src" ];
 then
@@ -19,6 +19,15 @@ FILES="$DIR/../input/"
 
 mkdir -p "$OUT"
 set -euo pipefail
+echo "$(tput setaf 4)    ----- Testing   ${B}QAX $N $(tput setaf 4) ----- $(tput setaf 0)"
+echo "          $(tput setaf 5)$($BIN | grep version)$(tput setaf 0)"
+echo
+echo -e "$B[0] Synopsis$N"
+for i in list citations provenance extract; 
+do 
+  ./bin/qax_mac $i --help | grep -w $i | grep Usage >/dev/null && echo -e "     $OK Help for '$i': found"; 
+done
+
 
 echo -e "$B[1] List$N"
 $BIN list $FILES/*.qz?        | grep DNASequencesDirectoryFormat >/dev/null && echo -e "     $OK list (no params)"
@@ -33,7 +42,7 @@ else
   exit 1
 fi
 
-echo -e "$B[2] extract$N"
+echo -e "$B[2] Extract$N"
 #$BIN extract $FILES/rep-seqs.qzv -o /tmp/
 
 $BIN extract $FILES/rep-seqs.qza -o $OUT/
@@ -58,7 +67,7 @@ if [ ! -e "$OUT"/taxonomy/q2templateassets/fonts/glyphicons-halflings-regular.tt
 else
   echo -e "     $OK Extract multiple files artifact (subdirectory)"
 fi
-echo -e "$B[3] citations$N"
+echo -e "$B[3] Citations$N"
 DIRECT=$($BIN citations $FILES/taxonomy.qzv  | grep -c '@')
 RECURSIVE=$($BIN citations -r $FILES/taxonomy.qzv  | grep -c '@')
 if [ $DIRECT -eq 1 ]; then
@@ -75,7 +84,7 @@ else
   exit 1
 fi
 
-echo -e "$B[4] provenance$N"
+echo -e "$B[4] Provenance$N"
 PARENTS=$($BIN provenance $FILES/taxonomy.qzv  | grep -c -w -i 'top')
 CHILDREN=$($BIN provenance $FILES/taxonomy.qzv  | grep -c -w -i 'child')
 if [ $PARENTS -eq 3 ]; then
