@@ -116,3 +116,14 @@ else
   echo -e "     $KO expecting 7 nodes in graph: $EDGES found"
   exit 1
 fi
+
+
+
+echo -e "$B[5] View$N"
+COUNT=$($BIN view $FILES/rep-seqs.qza  | grep -c  '>')
+if [ $COUNT -eq 769 ]; then
+  echo -e "     $OK 769 seqs for rep-seqs.qza"
+else
+  echo -e "     $KO expecting 769 seqs for rep-seqs.qza: $COUNT found"
+  exit 1
+fi

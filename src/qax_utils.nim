@@ -6,12 +6,17 @@ import times
 
 
 proc version*(): string =
-  return "0.6.0"
+  return "0.5.0"
 
-#[ Versions
+#[ Versions + Roadmap
 
-0.6.0 qax_utils refactoring
-0.5.0 Improved unit tests; BioConda
+0.8.0 qax_utils added function to get text without specifying ID
+0.7.0 qax_utils refactoring
+0.6.0 Improved "view"
+---
+0.5.0 Added "view"
+      - BugFix: readArtifact->data
+      Improved unit tests; BioConda
 0.4.0 Fixes; Continuous integration (TravisCI)
 0.3.0 Citations
 0.2.0 Provenance
@@ -60,9 +65,11 @@ proc getDataFiles*(zipFileName: string): seq[string] =
     return 
   else:
     for file in z.walkFiles:
-      let parts = file.split('/')
+      var parts = file.split('/')
       if parts[1] == "data":
-        result.add(parts[2])
+        delete(parts, 0)
+        delete(parts, 0)
+        result.add(parts.join("/"))
 
 proc extractPath*(zipFileName: string, outputDirectory: string): bool =
   var z: ZipArchive

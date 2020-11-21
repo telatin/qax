@@ -31,6 +31,11 @@ wget -O qax "https://github.com/telatin/qax/raw/main/bin/qax_mac"
 chmod +x qax
 ```
 
+Alternatively, you can install _qax_ from BioConda, if you have _conda_ installed:
+```
+conda install -c bioconda qax
+```
+
 ## :book: Usage
 
 `qax` has four subprograms (general syntax is `qax [program] [program-arguments]`):
@@ -39,6 +44,7 @@ chmod +x qax
 - **citations**: extract citations in BibTeX format
 - **extract**: extract artifact _data_ files
 - **provenance**: describe artifact provenance, or generate its graph
+- **view**: print the content of an artifact (eg. dna-sequences.fasta) to the terminal
 
 
 ### :page_facing_up: list
@@ -83,3 +89,17 @@ Each Qiime module provides the citations for the software and resources that it 
 * See [**qax provenance** full documentation](docs/provenance.md)
 
 This program allows to print the provenance of an artifact, or to produce a [publication grade graph](docs/qax-provenance.png) of the provenance.
+
+
+### :page_facing_up: view
+
+* See [**qax view** full documentation](docs/view.md)
+
+This program allows to print the content of an artifact data file to the terminal.
+If the artifact contains a single file, it will be printed. Otherwise the user can specify one or multiple files to be printed, and if none
+is specified, a list of files will be printed.
+
+```
+# Example: count the number of representative sequences
+qax view rep-seqs.qza | grep -c '>'
+```

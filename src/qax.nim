@@ -15,12 +15,13 @@ include /list
 include /cite
 include /extract
 include /provenance
-
+include /view
 var progs = {
        "ls"  : list, "list" : list,
        "x"   : extract, "extract": extract,
        "c"   : cite,    "citations": cite,
-       "p"   : provenance, "provenance": provenance
+       "p"   : provenance, "provenance": provenance,
+       "v"   : view, "view": view
 }.toTable
 
 proc main() =
