@@ -19,7 +19,8 @@ While artifacts can improve the shareability and reproducibility of Qiime workfl
 
 ## :floppy_disk: Download ![https://img.shields.io/github/downloads/telatin/qax/total?color=teal&label=GitHub%20downloads&logoColor=silver]
 
-Pre-compiled binaries are the fastest and easiest way to get _qax_.
+Pre-compiled binaries are the fastest and easiest way to get _qax_. To get the latest version, 
+use the following command, otherwise check the [stable releases](https://github.com/telatin/qax/releases).
 
 ```
 # From linux
