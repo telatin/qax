@@ -15,3 +15,17 @@ Options:
   -v, --verbose          Verbose output
   -h, --help             Show this help
 ```
+
+### Single file artifacts
+Example:
+```
+qax view rep-seq.qza | grep -c '>'
+```
+
+### Artifact with multiple files
+
+The file (or files) to extract have to be specified:
+
+```
+qax view taxonomy.qzv index.html | grep -c "body"
+```
