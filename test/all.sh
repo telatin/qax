@@ -127,3 +127,5 @@ else
   echo -e "     $KO expecting 769 seqs for rep-seqs.qza: $COUNT found"
   exit 1
 fi
+
+tput init

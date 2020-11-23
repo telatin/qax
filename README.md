@@ -80,17 +80,40 @@ qax_mac -b -u input/*.*
 
 This program extract the content of an artifact. By default, if a single file is present it will be extracted in the specified path. If multiple files are present, a directory containing them will be created instead.
 
+_Example:_
+```
+# Extract representative sequences (will be called rep-seqs.fasta)
+qax x -o ./ rep-seqs.qza
+
+# Extract a visualization (a folder called "taxonomy" will be created)
+qax x -o ./ taxonomy.qzv
+```
+
 ### :page_facing_up: citations
 
-* See [**qax citeations** full documentation](docs/cite.md)
+* See [**qax citations** full documentation](docs/cite.md)
 
 Each Qiime module provides the citations for the software and resources that it uses, storing the citations in BibTeX format inside the artifacts. The cite module allows to extract all the citations from a list of artifacts, removing the duplicates, thus effectively allowing to prepare the bibliography for a complete Qiime2 analysis.
+
+_Example:_
+```
+qax c files/*.qza > bibliography.bib
+```
 
 ### :page_facing_up: provenance
 
 * See [**qax provenance** full documentation](docs/provenance.md)
 
 This program allows to print the provenance of an artifact, or to produce a [publication grade graph](docs/qax-provenance.png) of the provenance.
+
+_Example:_
+```
+# To view a summary
+qax p taxonomy.qzv 
+
+# To save the plot
+qax p -o graph.dot taxonomy.qza
+```
 
 
 ### :page_facing_up: view
