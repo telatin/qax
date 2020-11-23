@@ -24,8 +24,8 @@ echo "          $(tput setaf 5)$($BIN | grep version)$(tput setaf 0)"
 echo
 echo -e "$B[0] Synopsis$N"
 for i in list citations provenance extract; 
-do 
-  ./bin/qax_mac $i --help | grep -w $i | grep Usage >/dev/null && echo -e "     $OK Help for '$i': found"; 
+do
+  $BIN $i --help | grep -w $i | grep Usage >/dev/null && echo -e "     $OK Help for '$i': found"; 
 done
 
 

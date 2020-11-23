@@ -1,4 +1,3 @@
-import strformat
 import zip/zipfiles
 import tables, strutils, algorithm, terminaltables
 import os
