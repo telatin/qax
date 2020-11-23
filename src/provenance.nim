@@ -189,8 +189,8 @@ Options:
       if args["--pdf"]:
         let font = $args["--font"]
         let command = "dot -O -Tpdf -Nfontname=\"" & font & "\" -Efontname=\""& font & "\" " & $args["--dotfile"]
-        let result = execCmdEx(command, options = {})
-        if result.exitCode != 0:
+        let dotRun = execCmdEx(command, options = {})
+        if dotRun.exitCode != 0:
           stderr.writeLine("[provenance] Unable to generate PDF file, is dot installed?")
         else:
           stderr.writeLine("[provenance] PDF saved to: ", args["--dotfile"], ".pdf")

@@ -1,6 +1,5 @@
-import strformat
 import zip/zipfiles
-import tables, strutils, algorithm, terminaltables
+import tables, strutils, algorithm
 import os
 import docopt
 import ./qax_utils

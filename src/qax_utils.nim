@@ -6,14 +6,13 @@ import times
 
 
 proc version*(): string =
-  return "0.5.0"
+  return "0.6.0"
 
 #[ Versions + Roadmap
 
 0.8.0 qax_utils added function to get text without specifying ID
-0.7.0 qax_utils refactoring
-0.6.0 Improved "view"
----
+0.7.0 Improved "view"
+0.6.0 qax_utils refactoring
 0.5.0 Added "view"
       - BugFix: readArtifact->data
       Improved unit tests; BioConda
@@ -41,9 +40,7 @@ type
     data*: seq[string]
     parents*: seq[string]
 
-
-
-
+ 
 
 proc readFileFromZip*(zipFileName, FileName: string): string =
   var

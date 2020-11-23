@@ -28,3 +28,12 @@ nim c -d:useLibzipSrc -w:on $STAT -p:lib/yaml --opt:speed $RELEASE --verbosity:0
 
 $DIR/../bin/qax${PLATFORM} --help
 $DIR/../bin/qax${PLATFORM} $DIR/../input/*
+
+if [ -e "$DIR"/../test/all.sh ];
+then
+  bash "$DIR"/../test/all.sh
+fi
+
+if [ -e "$DIR"/clean.sh ]; then
+ bash "$DIR"/clean.sh
+fi
