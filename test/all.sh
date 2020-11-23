@@ -128,4 +128,4 @@ else
   exit 1
 fi
 
-tput init
+tput init || true
