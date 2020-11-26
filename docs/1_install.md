@@ -27,3 +27,7 @@ Alternatively, you can install _qax_ from BioConda, if you have _conda_ installe
 ```
 conda install -c conda-forge -c bioconda qax
 ```
+
+```note
+Miniconda installation has been tested on MacOS and Linux, but being _qax_ a single binary, if the precompiled works for you we recommend it.
+```
