@@ -35,7 +35,7 @@ chmod +x qax
 
 Alternatively, you can install _qax_ from BioConda, if you have _conda_ installed:
 ```
-conda install -c bioconda qax
+conda install -c conda-forge -c bioconda qax
 ```
 
 ## :book: Usage
