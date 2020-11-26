@@ -10,7 +10,7 @@
 - Website: <https://telatin.github.io/qax/>
 - Github: <https://github.com/telatin/qax>
 
-## :book: Introduction
+## Introduction
 
 <img alt="qax logo" align="right" width="333" height="153" src="https://raw.githubusercontent.com/telatin/qax/main/pages/qax.png">
 

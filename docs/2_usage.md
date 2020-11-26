@@ -4,15 +4,20 @@ permalink: /usage
 ---
 # Usage
 
-**This is the development draft for the Contest API. See also [the
-version that will be used at WF 2020](Contest_API_2020).**
+`qax` is composed by five subprogram, and the general syntax is:
 
-```note
-TODO: Remove/replace broken links.
+```
+qax [program] parameters
 ```
 
+The programs are:
+- **list** (it's the default action and can be omitteed)
+- **extract** or **x**
+- **citations** or **c**
+- **provenance** or **p**
+- **view** or **v**
 
-## :page_facing_up: list
+## list
 
 
 * See [**qax list** full documentation](docs/list.md)
@@ -36,7 +41,7 @@ qax_mac -b -u input/*.*
 └───────────────────────────┴────────────────┴─────────────────────────┴─────────────────────────────┘
 ```
 
-## :page_facing_up: extract
+## extract
 
 
 * See [**qax extract** full documentation](docs/extract.md)
@@ -52,7 +57,7 @@ qax x -o ./ rep-seqs.qza
 qax x -o ./ taxonomy.qzv
 ```
 
-## :page_facing_up: citations
+## citations
 
 * See [**qax citations** full documentation](docs/cite.md)
 
@@ -63,7 +68,7 @@ _Example:_
 qax c files/*.qza > bibliography.bib
 ```
 
-## :page_facing_up: provenance
+## provenance
 
 * See [**qax provenance** full documentation](docs/provenance.md)
 
@@ -79,7 +84,7 @@ qax p -o graph.dot taxonomy.qza
 ```
 
 
-## :page_facing_up: view
+## view
 
 * See [**qax view** full documentation](docs/view.md)
 
