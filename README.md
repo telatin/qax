@@ -8,7 +8,7 @@
 
 ## :book: Introduction
 
-<img alt="qax logo" align="right" width="333" height="153" src="https://raw.githubusercontent.com/telatin/qax/main/docs/qax.png">
+<img alt="qax logo" align="right" width="333" height="153" src="https://raw.githubusercontent.com/telatin/qax/main/pages/qax.png">
 
 Qiime2 is one of the most popular software used to analyze the output of metabarcoding experiment, and it introduced a unique data format in the bioinformatics scenario: the “_Qiime2 artifact_”.
 
@@ -76,7 +76,7 @@ qax_mac -b -u input/*.*
 ### :page_facing_up: extract
 
 
-* See [**qax extract** full documentation](docs/extract.md)
+* See [**qax extract** full documentation](pages/extract.md)
 
 This program extract the content of an artifact. By default, if a single file is present it will be extracted in the specified path. If multiple files are present, a directory containing them will be created instead.
 
@@ -91,7 +91,7 @@ qax x -o ./ taxonomy.qzv
 
 ### :page_facing_up: citations
 
-* See [**qax citations** full documentation](docs/cite.md)
+* See [**qax citations** full documentation](pages/cite.md)
 
 Each Qiime module provides the citations for the software and resources that it uses, storing the citations in BibTeX format inside the artifacts. The cite module allows to extract all the citations from a list of artifacts, removing the duplicates, thus effectively allowing to prepare the bibliography for a complete Qiime2 analysis.
 
@@ -102,7 +102,7 @@ qax c files/*.qza > bibliography.bib
 
 ### :page_facing_up: provenance
 
-* See [**qax provenance** full documentation](docs/provenance.md)
+* See [**qax provenance** full documentation](pages/provenance.md)
 
 This program allows to print the provenance of an artifact, or to produce a [publication grade graph](docs/qax-provenance.png) of the provenance.
 
@@ -118,7 +118,7 @@ qax p -o graph.dot taxonomy.qza
 
 ### :page_facing_up: view
 
-* See [**qax view** full documentation](docs/view.md)
+* See [**qax view** full documentation](pages/view.md)
 
 This program allows to print the content of an artifact data file to the terminal.
 If the artifact contains a single file, it will be printed. Otherwise the user can specify one or multiple files to be printed, and if none
