@@ -52,7 +52,7 @@ conda install -c conda-forge -c bioconda qax
 ### :page_facing_up: list
 
 
-* See [**qax list** full documentation](docs/list.md)
+* See [**qax list** full documentation](pages/list.md)
 
 This is the default module, and can be used to list the properties of one or more artifacts.
 
@@ -104,7 +104,7 @@ qax c files/*.qza > bibliography.bib
 
 * See [**qax provenance** full documentation](pages/provenance.md)
 
-This program allows to print the provenance of an artifact, or to produce a [publication grade graph](docs/qax-provenance.png) of the provenance.
+This program allows to print the provenance of an artifact, or to produce a [publication grade graph](pages/qax-provenance.png) of the provenance.
 
 _Example:_
 ```
