@@ -1,11 +1,11 @@
 # Package
-version       = "0.1.0"
+version       = "0.9.0"
 author        = "Andrea Telatin"
 description   = "Qiime Artifact eXtractor"
-license       = "MIT"
+license       = "Apache"
 
 # Dependencies
-requires "nim >= 1.0", "docopt", "terminaltables", "zip"
+requires "nim >= 1.0", "docopt", "terminaltables", "zip", "uuids"
 
 srcDir = "src"
 bin = @["qax"]
