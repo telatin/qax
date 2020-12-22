@@ -4,7 +4,7 @@ import strutils
 import tables
 import algorithm
 import docopt
- 
+
 
 # Suite utilities
 import /qax_utils
@@ -16,12 +16,14 @@ include /cite
 include /extract
 include /provenance
 include /view
+include /make
 var progs = {
        "ls"  : list, "list" : list,
        "x"   : extract, "extract": extract,
        "c"   : cite,    "citations": cite,
        "p"   : provenance, "provenance": provenance,
-       "v"   : view, "view": view
+       "v"   : view, "view": view,
+       "m"   : make, "make": make
 }.toTable
 
 proc main() =

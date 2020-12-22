@@ -6,11 +6,11 @@ import times
 
 
 proc version*(): string =
-  return "0.6.0"
+  return "0.9.0"
 
 #[ Versions + Roadmap
-
-0.8.0 qax_utils added function to get text without specifying ID
+0.9.0 added 'make' module
+0.8.0 improved utils module
 0.7.0 Improved "view"
 0.6.0 qax_utils refactoring
 0.5.0 Added "view"
@@ -21,7 +21,7 @@ proc version*(): string =
 0.2.0 Provenance
 0.1.1 List,Extract
 
- 
+
 ]#
 
 # Common variables for switches
@@ -33,14 +33,14 @@ var
 type
   QiimeArtifact* = object
     uuid*:  string
-    path*, basename*, inputpath*, name*:  string  
+    path*, basename*, inputpath*, name*:  string
     filedate*: Time
     date*, time*: string
     artifacttype*,format*, version*, archive*: string
     data*: seq[string]
     parents*: seq[string]
 
- 
+
 
 proc readFileFromZip*(zipFileName, FileName: string): string =
   var
@@ -59,7 +59,7 @@ proc readFileFromZip*(zipFileName, FileName: string): string =
 proc getDataFiles*(zipFileName: string): seq[string] =
   var z: ZipArchive
   if not z.open(zipFileName):
-    return 
+    return
   else:
     for file in z.walkFiles:
       var parts = file.split('/')
@@ -73,30 +73,30 @@ proc extractPath*(zipFileName: string, outputDirectory: string): bool =
   if not z.open(zipFileName):
     stderr.writeLine("Warning: unable to read compressed file: ", zipFileName)
     return false
-  else:  
+  else:
     for file in z.walkFiles:
       var parts = file.split('/')
       delete(parts, 0)
       if parts[0] == "data":
         delete(parts, 0)
-        var 
+        var
           destinationFilePath = parts.join("/")
           parent = parentDir(joinPath(outputDirectory, destinationFilePath))
-        
+
         # Create Dir
         try:
           createDir(parent)
         except Exception as e:
           stderr.write("Warning: Unable to create directory :", parent, "\n  ", e.msg, "\n")
-          return false    
+          return false
 
-        # Extract      
+        # Extract
         try:
           z.extractFile(file, joinPath(outputDirectory, destinationFilePath))
         except Exception as e:
           stderr.write("Warning: Unable to extract \"",file,"\" to \"", joinPath(outputDirectory, destinationFilePath),"\":\n  ", e.msg, "\n")
           return false
-        
+
     return true
 
 proc getID*(zipFileName: string): string =
@@ -112,7 +112,7 @@ proc getID*(zipFileName: string): string =
       else:
         return ""
 
-proc `$`*(f: QiimeArtifact): string = 
+proc `$`*(f: QiimeArtifact): string =
   return fmt"""
   File:     {f.path}
   Artifact: {f.uuid}
@@ -141,7 +141,7 @@ proc readArtifact*(path: string): QiimeArtifact =
     z: ZipArchive
     uuid = getID(path)
     abspath = absolutePath(path)
- 
+
   result.uuid = uuid
   result.inputpath = path
   result.path = abspath
@@ -153,7 +153,7 @@ proc readArtifact*(path: string): QiimeArtifact =
   result.date = format(result.filedate, "yyyy-MM-dd", utc())
   result.time = format(result.filedate, "HH:mm", utc())
   if not z.open(path):
-    return 
+    return
   else:
     let
       version = readFileFromZip(path, uuid & "/VERSION")
@@ -161,7 +161,7 @@ proc readArtifact*(path: string): QiimeArtifact =
     var
       versionLines = version.split("\n")
     versionLines.delete(0)  #Remove first line QIIME2
-    
+
     let
       metaYaml    = loadDOM(metadata)
       versionYaml = loadDOM(versionLines.join("\n"))
@@ -196,4 +196,3 @@ proc getBasename*(filename: string): string =
     return fileParse[1]
   #( dir, filenameNoExt, extension) = splitFile(filename)
   #(sampleId, direction) = extractTag(filenameNoExt, pattern1, pattern2)
- 
