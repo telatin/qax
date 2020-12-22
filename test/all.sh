@@ -1,8 +1,14 @@
 #!/bin/bash
 OK="$(tput setaf 2)OK$(tput setaf 0)"
 KO="$(tput setaf 5)FAIL$(tput setaf 0)"
+
 B=$(tput bold)
 N=$(tput sgr0)
+
+# Downgrade
+OK='[OK]'
+KO='[--]'
+
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 if [ -d "/project/src" ];
@@ -130,7 +136,8 @@ fi
 
 echo -e "$B[6] Make$N"
 
-$BIN make --verbose --force --tempdir $DIR/ -u "58e75511-d02e-4bea-b7b5-dd71c98e7ac5" -o "$OUT"/report.qzv "$FILES"/website 
+$BIN make --verbose --force --tempdir $DIR/ -u "58e75511-d02e-4bea-b7b5-dd71c98e7ac5" -o "$OUT"/report.qzv "$FILES"/website
+rm -rf "58e75511-d02e-4bea-b7b5-dd71c98e7ac5" || true
 if [[ -s "$OUT"/report.qzv ]]; then
   echo -e "     $OK created visualization artifact"
 else
