@@ -131,3 +131,12 @@ is specified, a list of files will be printed.
 # Example: count the number of representative sequences
 qax view rep-seqs.qza | grep -c '>'
 ```
+
+### :page_facing_up: make
+
+To create a _visualization artifact_ from a folder with a website (index.html must
+  be present).
+
+```
+qax make -o report.qza /path/to/report_dir/
+```

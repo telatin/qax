@@ -23,10 +23,11 @@ While artifacts can improve the shareability and reproducibility of Qiime workfl
 ## Functions
 
 
-`qax` has four subprograms (general syntax is `qax [program] [program-arguments]`):
+`qax` has different subprograms (and the general syntax is `qax [program] [program-arguments]`):
 
 - **list** (default): list artifact(s) properties
 - **citations**: extract citations in BibTeX format
 - **extract**: extract artifact _data_ files
 - **provenance**: describe artifact provenance, or generate its graph
 - **view**: print the content of an artifact (eg. dna-sequences.fasta) to the terminal
+- **make**: create a visualization artifact from HTML
