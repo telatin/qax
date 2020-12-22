@@ -1,12 +1,12 @@
 import zip/zipfiles
 import streams
-import  strutils, os, strformat
+import strutils, os, strformat
 import yaml
 import times
 
 
 proc version*(): string =
-  return "0.9.0"
+  return "0.9.1"
 
 #[ Versions + Roadmap
 0.9.0 added 'make' module

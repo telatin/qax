@@ -23,9 +23,9 @@ echo "$(tput setaf 4)    ----- Testing   ${B}QAX $N $(tput setaf 4) ----- $(tput
 echo "          $(tput setaf 5)$($BIN | grep version)$(tput setaf 0)"
 echo
 echo -e "$B[0] Synopsis$N"
-for i in list citations provenance extract; 
+for i in list citations provenance extract make;
 do
-  $BIN $i --help | grep -w $i | grep Usage >/dev/null && echo -e "     $OK Help for '$i': found"; 
+  $BIN $i --help | grep -w $i | grep Usage >/dev/null && echo -e "     $OK Help for '$i': found";
 done
 
 
@@ -130,7 +130,7 @@ fi
 
 echo -e "$B[6] Make$N"
 
-$BIN make --force -u "58e75511-d02e-4bea-b7b5-dd71c98e7ac5" -o "$OUT"/report.qzv "$FILES"/website >/dev/null 2>/dev/null
+$BIN make --verbose --force --tempdir $DIR/ -u "58e75511-d02e-4bea-b7b5-dd71c98e7ac5" -o "$OUT"/report.qzv "$FILES"/website 
 if [[ -s "$OUT"/report.qzv ]]; then
   echo -e "     $OK created visualization artifact"
 else
