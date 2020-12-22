@@ -33,6 +33,7 @@ proc main() =
                "extract, x": "extract artifact files",
                "provenance, p": "get artifacts provenance",
                "citations, c": "extract citations",
+               "make, m": "create visualization artifact from HTML"
                }.toTable
 
 

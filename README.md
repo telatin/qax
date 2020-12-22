@@ -10,19 +10,19 @@
 ## :book: Introduction
 
 <a href="https://telatin.github.io/qax/" description="QAX documentation">
-  <img alt="qax logo" align="right" width="333" height="153" src="https://raw.githubusercontent.com/telatin/qax/main/pages/qax.png">ù
+  <img alt="qax logo" align="right" width="333" height="153" src="https://raw.githubusercontent.com/telatin/qax/main/pages/qax.png">
 </a>
 
 Qiime2 is one of the most popular software used to analyze the output of metabarcoding experiment, and it introduced a unique data format in the bioinformatics scenario: the “_Qiime2 artifact_”.
 
-Qiime2 artifacts are structured compressed archives containing a dataset (_e.g._, FASTQ reads, representative sequences in FASTA format, a phylogenetic tree in Newick format, etc.) and an exhaustive set of metadata (including the command that generated it, information on the execution environment, citations on the used software, and all the metadata of the artifacts used to produce it). 
+Qiime2 artifacts are structured compressed archives containing a dataset (_e.g._, FASTQ reads, representative sequences in FASTA format, a phylogenetic tree in Newick format, etc.) and an exhaustive set of metadata (including the command that generated it, information on the execution environment, citations on the used software, and all the metadata of the artifacts used to produce it).
 
-While artifacts can improve the shareability and reproducibility of Qiime workflows, they are less easily integrated with general bioinformatics pipelines, and even accessing metadata in the artifacts requires the full Qiime2 installation (not to mention that every release of Qiime2 will produce incompatible artifacts). Qiime Artifact Extractor (qxa) allows to easily interface with Qiime2 artifacts from the command line, without needing the full Qiime2 environment installed. 
+While artifacts can improve the shareability and reproducibility of Qiime workflows, they are less easily integrated with general bioinformatics pipelines, and even accessing metadata in the artifacts requires the full Qiime2 installation (not to mention that every release of Qiime2 will produce incompatible artifacts). Qiime Artifact Extractor (qxa) allows to easily interface with Qiime2 artifacts from the command line, without needing the full Qiime2 environment installed.
 
 
 ## :floppy_disk: Download and installation
 
-Pre-compiled binaries are the fastest and easiest way to get _qax_. To get the latest version, 
+Pre-compiled binaries are the fastest and easiest way to get _qax_. To get the latest version,
 use the following command, otherwise check the [stable releases](https://github.com/telatin/qax/releases).  
 
 
@@ -62,7 +62,7 @@ This is the default module, and can be used to list the properties of one or mor
 Some features:
 * Supports multiple files at once
 * 100X times faster than Qiime2
-* Can be used to find an artifact given the ID 
+* Can be used to find an artifact given the ID
 
 Example:
 ```
@@ -112,7 +112,7 @@ This program allows to print the provenance of an artifact, or to produce a [pub
 _Example:_
 ```
 # To view a summary
-qax p taxonomy.qzv 
+qax p taxonomy.qzv
 
 # To save the plot
 qax p -o graph.dot taxonomy.qza

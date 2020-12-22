@@ -128,4 +128,23 @@ else
   exit 1
 fi
 
+echo -e "$B[6] Make$N"
+
+$BIN make --force -u "58e75511-d02e-4bea-b7b5-dd71c98e7ac5" -o "$OUT"/report.qzv "$FILES"/website >/dev/null 2>/dev/null
+if [[ -s "$OUT"/report.qzv ]]; then
+  echo -e "     $OK created visualization artifact"
+else
+  echo -e "     $KO unable to make report.qzv"
+  exit 1
+fi
+
+LINES=$(unzip -t "$OUT"/report.qzv | grep -c "58e75511-d02e-4bea-b7b5-dd71c98e7ac5")
+
+if [[ $LINES == 6 ]]; then
+  echo -e "     $OK correct UUID used and found 6 times"
+else
+  echo -e "     $KO UUID not found (expecting 6, found $LINES)"
+  exit 1
+fi
+
 tput init || true
