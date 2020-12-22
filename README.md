@@ -3,8 +3,8 @@
 [![Build Status](https://travis-ci.org/telatin/qax.svg?branch=main)](https://travis-ci.org/telatin/qax)
 [![Repository Size](https://img.shields.io/github/languages/code-size/telatin/qax)](https://github.com/telatin/qax)
 [![Latest release](https://img.shields.io/github/v/release/telatin/qax)](https://github.com/telatin/qax/releases)
-[![Available via BioConda](https://img.shields.io/conda/vn/bioconda/qax)](https://bioconda.github.io/recipes/qax/README.html)
 [![BioConda Downloads](https://img.shields.io/conda/dn/bioconda/qax)](https://bioconda.github.io/recipes/qax/README.html)
+[![Available via BioConda](https://img.shields.io/conda/vn/bioconda/qax)](https://bioconda.github.io/recipes/qax/README.html)
 [![docs-badge](https://img.shields.io/badge/read-the%20docs-red)](https://telatin.github.io/qax)
 
 ## :book: Introduction
