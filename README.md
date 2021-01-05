@@ -1,6 +1,6 @@
 # :package: Qiime2 Artifact eXtractor
 
-[![Build Status](https://travis-ci.org/telatin/qax.svg?branch=main)](https://travis-ci.org/telatin/qax)
+[![Build Status](https://travis-ci.com/telatin/qax.svg?branch=main)](https://travis-ci.com/telatin/qax)
 [![Repository Size](https://img.shields.io/github/languages/code-size/telatin/qax)](https://github.com/telatin/qax)
 [![Latest release](https://img.shields.io/github/v/release/telatin/qax)](https://github.com/telatin/qax/releases)
 [![BioConda Downloads](https://img.shields.io/conda/dn/bioconda/qax)](https://bioconda.github.io/recipes/qax/README.html)
