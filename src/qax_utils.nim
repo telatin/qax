@@ -6,9 +6,11 @@ import times
 
 
 proc version*(): string =
-  return "0.9.1"
+  return "0.9.2"
 
 #[ Versions + Roadmap
+0.9.2 handle artifacts without citations; bug fix on extract function
+0.9.1 conda fixes
 0.9.0 added 'make' module
 0.8.0 improved utils module
 0.7.0 Improved "view"
@@ -49,13 +51,25 @@ proc readFileFromZip*(zipFileName, FileName: string): string =
     line: string
   try:
     discard z.open(zipFileName)
+  except Exception as e:
+    stderr.writeLine("ERROR: Unable to open ", zipFileName, "\n", e.msg)
+    return ""
+  try:
     stream = z.getStream(FileName)
+  except Exception as e:
+    stderr.writeLine("ERROR: Unable to read file ", Filename, " from ", zipFileName, ":\n", e.msg)
+    return ""
+
+  if stream == nil:
+    stderr.writeLine("WARNING: Artifact file <", FileName, "> not found.\n")
+    return ""
+  try:
     while stream.readLine(line):
       result &= line & "\n"
   except Exception as e:
-    stderr.writeLine("ERROR: Unable to open ", zipFileName, "\n", e.msg)
-    discard
-
+    stderr.writeLine("ERROR: Unable to read file ", Filename, " from ", zipFileName,":\n", e.msg)
+    return ""
+   
 proc getDataFiles*(zipFileName: string): seq[string] =
   var z: ZipArchive
   if not z.open(zipFileName):
@@ -75,6 +89,10 @@ proc extractPath*(zipFileName: string, outputDirectory: string): bool =
     return false
   else:
     for file in z.walkFiles:
+      if file[^1] == '/':
+        continue
+      if verbose:
+        stderr.writeLine("Extracting: ", file)
       var parts = file.split('/')
       delete(parts, 0)
       if parts[0] == "data":
@@ -87,7 +105,7 @@ proc extractPath*(zipFileName: string, outputDirectory: string): bool =
         try:
           createDir(parent)
         except Exception as e:
-          stderr.write("Warning: Unable to create directory :", parent, "\n  ", e.msg, "\n")
+          stderr.write("Warning: Unable to create directory: <", parent, ">\n  ", e.msg, "\n")
           return false
 
         # Extract
