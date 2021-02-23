@@ -20,3 +20,11 @@ If we have a list of artifacts (_e. g._, `*.qz?`) we can extract the full biblio
 ```
 qax citations --output bibliography.bib *.qz?
 ```
+
+## Check how many representative sequences have been produced
+
+The _view_ subprogram will extract the main file and print it to the standard output, so we can combine 
+it with [grep](https://linux.die.net/man/1/grep) to count how many lines have a ">" sign.t
+```
+qax view input/rep-seqs.qza | grep -c '>'
+```
