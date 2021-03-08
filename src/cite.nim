@@ -6,6 +6,9 @@ import docopt
 import ./qax_utils
  
 proc dereplicateTeX(bib: string): string =
+  if len(bib) == 0:
+    return ""
+
   var
     lines = bib.split("\n")
     articles = initTable[string, string]()
@@ -96,8 +99,8 @@ Options:
         stderr.writeLine("ERROR: Unable to read artifact ", file, " (skipping):\n", e.msg)
     
     
+    let text = dereplicateTeX(bibliographyRaw)
     if args["--output"]:
-      let text = dereplicateTeX(bibliographyRaw)
       try:
         writeFile($args["--output"], text)
       except Exception as e:
@@ -105,4 +108,5 @@ Options:
         echo text
         quit(1)
     else:
-      echo dereplicateTeX(bibliographyRaw)
+      if len(text) > 1:
+        stdout.writeLine( text )

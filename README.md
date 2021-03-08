@@ -20,6 +20,13 @@ Qiime2 artifacts are structured compressed archives containing a dataset (_e.g._
 While artifacts can improve the shareability and reproducibility of Qiime workflows, they are less easily integrated with general bioinformatics pipelines, and even accessing metadata in the artifacts requires the full Qiime2 installation (not to mention that every release of Qiime2 will produce incompatible artifacts). Qiime Artifact Extractor (qxa) allows to easily interface with Qiime2 artifacts from the command line, without needing the full Qiime2 environment installed.
 
 
+## Citation
+
+If you use this tool, please cite
+
+> Telatin A (2021) **Qiime Artifact eXtractor (qax): A Fast and Versatile Tool to Interact with Qiime2 Archives**. BioTech 10: 5. 
+> Available: (doi.org/10.3390/biotech10010005)[http://dx.doi.org/10.3390/biotech10010005]
+
 ## :floppy_disk: Download and installation
 
 Pre-compiled binaries are the fastest and easiest way to get _qax_. To get the latest version,

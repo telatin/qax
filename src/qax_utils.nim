@@ -9,6 +9,7 @@ proc version*(): string =
   return "0.9.2"
 
 #[ Versions + Roadmap
+0.9.3 udate make tool
 0.9.2 handle artifacts without citations; bug fix on extract function
 0.9.1 conda fixes
 0.9.0 added 'make' module
@@ -61,7 +62,7 @@ proc readFileFromZip*(zipFileName, FileName: string): string =
     return ""
 
   if stream == nil:
-    stderr.writeLine("WARNING: Artifact file <", FileName, "> not found.\n")
+    stderr.writeLine("WARNING: Artifact file <", FileName, "> not found.")
     return ""
   try:
     while stream.readLine(line):

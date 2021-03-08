@@ -9,6 +9,7 @@
 
 - Website: <https://telatin.github.io/qax/>
 - Github: <https://github.com/telatin/qax>
+- Paper: <>
 
 ## Introduction
 
@@ -31,3 +32,7 @@ While artifacts can improve the shareability and reproducibility of Qiime workfl
 - **provenance**: describe artifact provenance, or generate its graph
 - **view**: print the content of an artifact (eg. dna-sequences.fasta) to the terminal
 - **make**: create a visualization artifact from HTML
+
+## Citation
+
+Telatin, A. **Qiime Artifact eXtractor (qax): A Fast and Versatile Tool to Interact with Qiime2 Archives.** BioTech (doi.org/10.3390/biotech10010005)[https://doi.org/10.3390/biotech10010005]
