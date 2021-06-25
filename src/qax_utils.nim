@@ -5,8 +5,10 @@ import yaml
 import times
 
 
+const NimblePkgVersion {.strdefine.} = "<NimblePkgVersion>"
+
 proc version*(): string =
-  return "0.9.2"
+  return NimblePkgVersion
 
 #[ Versions + Roadmap
 0.9.3 udate make tool

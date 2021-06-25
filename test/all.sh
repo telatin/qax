@@ -27,6 +27,8 @@ mkdir -p "$OUT"
 set -euo pipefail
 echo "$(tput setaf 4)    ----- Testing   ${B}QAX $N $(tput setaf 4) ----- $(tput setaf 0)"
 echo "          $(tput setaf 5)$($BIN | grep version)$(tput setaf 0)"
+echo $(tput init)
+echo " Binary: $BIN"
 echo
 echo -e "$B[0] Synopsis$N"
 for i in list citations provenance extract make;

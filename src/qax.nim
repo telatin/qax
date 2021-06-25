@@ -30,6 +30,7 @@ proc main() =
 
   var
     helps = {  "list (default)": "list artifact(s) properties",
+               "view, v": "print the data file to standard output",
                "extract, x": "extract artifact files",
                "provenance, p": "get artifacts provenance",
                "citations, c": "extract citations",

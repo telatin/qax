@@ -1,5 +1,5 @@
 # Package
-version       = "0.9.0"
+version       = "0.9.3"
 author        = "Andrea Telatin"
 description   = "Qiime Artifact eXtractor"
 license       = "Apache"
@@ -8,8 +8,8 @@ license       = "Apache"
 requires "nim >= 1.0", "docopt", "terminaltables", "zip", "uuids"
 
 srcDir = "src"
-bin = @["qax"]
 
+namedBin = {"qax": "bin/qax"}.toTable()
 task qax, "compile qax":
   mkdir  "bin"
   exec "nimble c -p:lib/yaml/ -d:release  --opt:speed --out:bin/qax src/qax"

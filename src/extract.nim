@@ -59,8 +59,14 @@ Options:
     # Check output directory
 
     if not dirExists($args["--outdir"]):
-      stderr.writeLine("FATAL ERROR: Output directory not found: ", $args["--outdir"])
-      quit(1)
+      # 0.9.3
+      try:
+          createDir($args["--outdir"])
+      except Exception as e:
+        stderr.writeLine("FATAL ERROR: Output directory not found, creation failed: ", $args["--outdir"], "\n", e.msg)
+        quit(1)
+    else:
+        stderr.writeLine("WARNING: Output directory found: ", $args["--outdir"])
 
     # Scan files and populate "artifacts"
     for file in files:
