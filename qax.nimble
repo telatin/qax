@@ -1,5 +1,5 @@
 # Package
-version       = "0.9.3"
+version       = "0.9.5"
 author        = "Andrea Telatin"
 description   = "Qiime Artifact eXtractor"
 license       = "Apache"
