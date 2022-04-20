@@ -1,4 +1,3 @@
-- yaml (shipped due to incompatibility with 1.2 of both stable and #head)
-- terminaltables
-- zip/zipfiles
-
+yaml # (shipped due to incompatibility with 1.2 of both stable and #head)
+terminaltables
+zip
