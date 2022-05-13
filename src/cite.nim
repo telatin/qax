@@ -16,17 +16,25 @@ proc dereplicateTeX(bib: string): string =
     title = ""
 
   lines.add("@")
-  for line in lines:
-    if len(line) >= 1 and line[0] == '@':
-      if len(title) > 0:
-        articles[title] = buffer
-      buffer = line & "\n"
-      title = line
-    else:
-      buffer &= line & "\n"
-  
-  for header in articles.keys:
-    result &= articles[header]
+  try:
+    for line in lines:
+      if len(line) >= 1 and line[0] == '@':
+        if len(title) > 0:
+          articles[title] = buffer
+        buffer = line & "\n"
+        title = line
+      else:
+        buffer &= line & "\n"
+  except Exception as e:
+    stderr.writeLine "Unable to dereplicate bibtex: " & e.msg
+    return bib
+
+  try:
+    for header in articles.keys:
+      result &= articles[header]
+  except Exception as e:
+    stderr.writeLine "Unable to dereplicate bibtex: " & e.msg
+    return bib
 
 proc cite(argv: var seq[string]): int =
     let args = docopt("""
@@ -78,7 +86,7 @@ Options:
         let
           art = readArtifact(file)
         if verbose:
-          stderr.writeLine("Parsing: ",$art)
+          stderr.writeLine($art)
         
         let 
           biblioFile = joinPath(art.uuid, "provenance/citations.bib")

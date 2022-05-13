@@ -1,7 +1,5 @@
 # QAX: the Qiime2 Artifacts eXtractor
 
-
-[![Build Status](https://travis-ci.com/telatin/qax.svg?branch=main)](https://travis-ci.com/telatin/qax)
 [![Repository Size](https://img.shields.io/github/languages/code-size/telatin/qax)](https://github.com/telatin/qax)
 [![Latest release](https://img.shields.io/github/v/release/telatin/qax)](https://github.com/telatin/qax/releases)
 [![Available via BioConda](https://img.shields.io/conda/vn/bioconda/qax)](https://bioconda.github.io/recipes/qax/README.html)
