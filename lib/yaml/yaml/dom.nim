@@ -5,7 +5,7 @@
 #    distribution, for details about the copyright.
 
 ## ===============
-## Module yaml.dom
+## Module yaml/dom
 ## ===============
 ##
 ## This is the DOM API, which enables you to load YAML into a tree-like
@@ -20,9 +20,12 @@
 ## objects of Nim's `json module <http://nim-lang.org/docs/json.html>`_.
 
 import tables, streams, hashes, sets, strutils
-import stream, taglib, serialization, private/internal, parser,
+import data, stream, taglib, serialization, private/internal, parser,
        presenter
-       
+
+when defined(gcArc) and not defined(gcOrc):
+  {.error: "NimYAML's DOM API only supports ORC because ARC can't deal with cycles".}
+
 when defined(nimNoNil):
     {.experimental: "notnil".}
 type
@@ -33,7 +36,7 @@ type
     ## Represents a node in a ``YamlDocument``.
 
   YamlNodeObj* = object
-    tag*: string
+    tag*: Tag
     case kind*: YamlNodeKind
     of yScalar: content*: string
     of ySequence: elems*: seq[YamlNode]
@@ -98,7 +101,7 @@ proc `==`*(x, y: YamlNode): bool =
   result = eqImpl(x, y, alreadyVisited)
 
 proc `$`*(n: YamlNode): string =
-  result = "!<" & n.tag & "> "
+  result = "!<" & $n.tag & "> "
   case n.kind
   of yScalar: result.add(escape(n.content))
   of ySequence:
@@ -118,182 +121,170 @@ proc `$`*(n: YamlNode): string =
     result.setLen(result.len - 1)
     result[^1] = '}'
 
-proc newYamlNode*(content: string, tag: string = "?"): YamlNode =
+proc newYamlNode*(content: string, tag: Tag = yTagQuestionMark): YamlNode =
   YamlNode(kind: yScalar, content: content, tag: tag)
 
-proc newYamlNode*(elems: openarray[YamlNode], tag: string = "?"):
+proc newYamlNode*(elems: openarray[YamlNode], tag: Tag = yTagQuestionMark):
     YamlNode =
   YamlNode(kind: ySequence, elems: @elems, tag: tag)
 
 proc newYamlNode*(fields: openarray[(YamlNode, YamlNode)],
-                  tag: string = "?"): YamlNode =
+                  tag: Tag = yTagQuestionMark): YamlNode =
   YamlNode(kind: yMapping, fields: newTable(fields), tag: tag)
 
-proc initYamlDoc*(root: YamlNode): YamlDocument = result.root = root
+proc initYamlDoc*(root: YamlNode): YamlDocument =
+  result = YamlDocument(root: root)
 
-proc composeNode(s: var YamlStream, tagLib: TagLibrary,
-                 c: ConstructionContext):
+proc composeNode(s: var YamlStream, c: ConstructionContext):
     YamlNode {.raises: [YamlStreamError, YamlConstructionError].} =
-  template addAnchor(c: ConstructionContext, target: AnchorId) =
+  template addAnchor(c: ConstructionContext, target: Anchor) =
     if target != yAnchorNone:
-      when defined(JS):
-        {.emit: [c, """.refs.set(""", target, ", ", result, ");"].}
-      else:
-        yAssert(not c.refs.hasKey(target))
-        c.refs[target] = cast[pointer](result)
+      yAssert(not c.refs.hasKey(target))
+      c.refs[target] = (tag: yamlTag(YamlNode), p: cast[pointer](result))
 
-  var start: YamlStreamEvent
+  var start: Event
   shallowCopy(start, s.next())
   new(result)
   try:
     case start.kind
     of yamlStartMap:
-      result = YamlNode(tag: tagLib.uri(start.mapTag),
+      result = YamlNode(tag: start.mapProperties.tag,
                         kind: yMapping,
                         fields: newTable[YamlNode, YamlNode]())
       while s.peek().kind != yamlEndMap:
         let
-          key = composeNode(s, tagLib, c)
-          value = composeNode(s, tagLib, c)
+          key = composeNode(s, c)
+          value = composeNode(s, c)
         if result.fields.hasKeyOrPut(key, value):
           raise newException(YamlConstructionError,
               "Duplicate key: " & $key)
       discard s.next()
-      addAnchor(c, start.mapAnchor)
+      addAnchor(c, start.mapProperties.anchor)
     of yamlStartSeq:
-      result = YamlNode(tag: tagLib.uri(start.seqTag),
+      result = YamlNode(tag: start.seqProperties.tag,
                         kind: ySequence,
                         elems: newSeq[YamlNode]())
       while s.peek().kind != yamlEndSeq:
-        result.elems.add(composeNode(s, tagLib, c))
-      addAnchor(c, start.seqAnchor)
+        result.elems.add(composeNode(s, c))
+      addAnchor(c, start.seqProperties.anchor)
       discard s.next()
     of yamlScalar:
-      result = YamlNode(tag: tagLib.uri(start.scalarTag),
+      result = YamlNode(tag: start.scalarProperties.tag,
                         kind: yScalar)
       shallowCopy(result.content, start.scalarContent)
-      addAnchor(c, start.scalarAnchor)
+      addAnchor(c, start.scalarProperties.anchor)
     of yamlAlias:
-      when defined(JS):
-        {.emit: [result, " = ", c, ".refs.get(", start.aliasTarget, ");"].}
-      else:
-        result = cast[YamlNode](c.refs[start.aliasTarget])
+      result = cast[YamlNode](c.refs[start.aliasTarget].p)
     else: internalError("Malformed YamlStream")
   except KeyError:
     raise newException(YamlConstructionError,
                        "Wrong tag library: TagId missing")
 
-proc compose*(s: var YamlStream, tagLib: TagLibrary): YamlDocument
+proc compose*(s: var YamlStream): YamlDocument
     {.raises: [YamlStreamError, YamlConstructionError].} =
   var context = newConstructionContext()
-  var n: YamlStreamEvent
+  var n: Event
   shallowCopy(n, s.next())
   yAssert n.kind == yamlStartDoc
-  result.root = composeNode(s, tagLib, context)
+  result = YamlDocument(root: composeNode(s, context))
   n = s.next()
   yAssert n.kind == yamlEndDoc
 
 proc loadDom*(s: Stream | string): YamlDocument
-    {.raises: [IOError, YamlParserError, YamlConstructionError].} =
+    {.raises: [IOError, OSError, YamlParserError, YamlConstructionError].} =
   var
-    tagLib = initExtendedTagLibrary()
-    parser = newYamlParser(tagLib)
+    parser = initYamlParser()
     events = parser.parse(s)
-  try: result = compose(events, tagLib)
+    e: Event
+  try:
+    e = events.next()
+    yAssert(e.kind == yamlStartStream)
+    result = compose(events)
+    e = events.next()
+    if e.kind != yamlEndStream:
+      raise newYamlConstructionError(events, e.startPos, "stream contains multiple documents")
   except YamlStreamError:
-    let e = getCurrentException()
-    if e.parent of YamlParserError:
-      raise (ref YamlParserError)(e.parent)
-    elif e.parent of IOError:
-      raise (ref IOError)(e.parent)
-    else: internalError("Unexpected exception: " & e.parent.repr)
+    let ex = getCurrentException()
+    if ex.parent of YamlParserError:
+      raise (ref YamlParserError)(ex.parent)
+    elif ex.parent of IOError:
+      raise (ref IOError)(ex.parent)
+    elif ex.parent of OSError:
+      raise (ref OSError)(ex.parent)
+    else: internalError("Unexpected exception: " & ex.parent.repr)
 
-proc serializeNode(n: YamlNode, c: SerializationContext, a: AnchorStyle,
-                   tagLib: TagLibrary) {.raises: [].}=
-  var val = yAnchorNone
-  when defined(JS):
-    {.emit: ["""
-      if (""", a, " != ", asNone, " && ", c, ".refs.has(", n, """) {
-        """, val, " = ", c, ".refs.get(", n, """);
-        if (""", c, ".refs.get(", n, ") == ", yAnchorNone, ") {"].}
-    val = c.nextAnchorId
-    {.emit: [c, """.refs.set(""", n, """, """, val, """);"""].}
-    c.nextAnchorId = AnchorId(int(c.nextAnchorId) + 1)
-    {.emit: "}".}
-    c.put(aliasEvent(val))
-    return
-    {.emit: "}".}
-  else:
-    let p = cast[pointer](n)
-    if a != asNone and c.refs.hasKey(p):
-      val = c.refs.getOrDefault(p)
-      if val == yAnchorNone:
-        val = c.nextAnchorId
-        c.refs[p] = val
-        c.nextAnchorId = AnchorId(int(c.nextAnchorId) + 1)
-      c.put(aliasEvent(val))
-      return
+proc loadMultiDom*(s: Stream | string): seq[YamlDocument]
+    {.raises: [IOError, OSError, YamlParserError, YamlConstructionError].} =
   var
-    tagId: TagId
-    anchor: AnchorId
-  if a == asAlways:
-    val = c.nextAnchorId
-    when defined(JS):
-      {.emit: [c, ".refs.set(", n, ", ", val, ");"].}
-    else:
-      c.refs[p] = c.nextAnchorId
-    c.nextAnchorId = AnchorId(int(val) + 1)
-  else:
-    when defined(JS):
-      {.emit: [c, ".refs.set(", n, ", ", yAnchorNone, ");"].}
-    else:
-      c.refs[p] = yAnchorNone
-  tagId = if tagLib.tags.hasKey(n.tag): tagLib.tags.getOrDefault(n.tag) else:
-          tagLib.registerUri(n.tag)
-  case a
-  of asNone: anchor = yAnchorNone
-  of asTidy: anchor = cast[AnchorId](n)
-  of asAlways: anchor = val
+    parser = initYamlParser(tagLib)
+    events = parser.parse(s)
+    e: Event
+  try:
+    e = events.next()
+    yAssert(e.kind == yamlStartStream)
+    while events.peek().kind == yamlStartDoc:
+      result.add(compose(events, tagLib))
+    e = events.next()
+    yAssert(e.kind != yamlEndStream)
+  except YamlStreamError:
+    let ex = getCurrentException()
+    if ex.parent of YamlParserError:
+      raise (ref YamlParserError)(ex.parent)
+    elif ex.parent of IOError:
+      raise (ref IOError)(ex.parent)
+    elif ex.parent of OSError:
+      raise (ref OSError)(ex.parent)
+    else: internalError("Unexpected exception: " & ex.parent.repr)
+
+proc serializeNode(n: YamlNode, c: SerializationContext, a: AnchorStyle)
+    {.raises: [].}=
+  var anchor = yAnchorNone
+  let p = cast[pointer](n)
+  if a != asNone and c.refs.hasKey(p):
+    anchor = c.refs.getOrDefault(p).a
+    c.refs[p] = (anchor, true)
+    c.put(aliasEvent(anchor))
+    return
+  if a != asNone:
+    anchor = c.nextAnchorId.Anchor
+    c.refs[p] = (c.nextAnchorId.Anchor, false)
+    nextAnchor(c.nextAnchorId, len(c.nextAnchorId) - 1)
 
   case n.kind
-  of yScalar: c.put(scalarEvent(n.content, tagId, anchor))
+  of yScalar: c.put(scalarEvent(n.content, n.tag, anchor))
   of ySequence:
-    c.put(startSeqEvent(tagId, anchor))
+    c.put(startSeqEvent(csBlock, (anchor, n.tag)))
     for item in n.elems:
-      serializeNode(item, c, a, tagLib)
+      serializeNode(item, c, a)
     c.put(endSeqEvent())
   of yMapping:
-    c.put(startMapEvent(tagId, anchor))
+    c.put(startMapEvent(csBlock, (anchor, n.tag)))
     for key, value in n.fields.pairs:
-      serializeNode(key, c, a, tagLib)
-      serializeNode(value, c, a, tagLib)
+      serializeNode(key, c, a)
+      serializeNode(value, c, a)
     c.put(endMapEvent())
 
-template processAnchoredEvent(target: untyped, c: SerializationContext) =
-  var anchorId: AnchorId
-  when defined(JS):
-    {.emit: [anchorId, " = ", c, ".refs.get(", target, ");"].}
-  else:
-    anchorId = c.refs.getOrDefault(cast[pointer](target))
-  if anchorId != yAnchorNone: target = anchorId
-  else: target = yAnchorNone
-
-proc serialize*(doc: YamlDocument, tagLib: TagLibrary, a: AnchorStyle = asTidy):
+proc serialize*(doc: YamlDocument, a: AnchorStyle = asTidy):
     YamlStream {.raises: [].} =
   var
     bys = newBufferYamlStream()
-    c = newSerializationContext(a, proc(e: YamlStreamEvent) {.raises: [].} =
+    c = newSerializationContext(a, proc(e: Event) {.raises: [].} =
       bys.put(e)
     )
+  c.put(startStreamEvent())
   c.put(startDocEvent())
-  serializeNode(doc.root, c, a, tagLib)
+  serializeNode(doc.root, c, a)
   c.put(endDocEvent())
+  c.put(endStreamEvent())
   if a == asTidy:
+    var ctx = initAnchorContext()
     for event in bys.mitems():
       case event.kind
-      of yamlScalar: processAnchoredEvent(event.scalarAnchor, c)
-      of yamlStartMap: processAnchoredEvent(event.mapAnchor, c)
-      of yamlStartSeq: processAnchoredEvent(event.seqAnchor, c)
+      of yamlScalar: ctx.process(event.scalarProperties, c.refs)
+      of yamlStartMap: ctx.process(event.mapProperties, c.refs)
+      of yamlStartSeq: ctx.process(event.seqProperties, c.refs)
+      of yamlAlias:
+        event.aliasTarget = ctx.map(event.aliasTarget)
       else: discard
   result = bys
 
@@ -304,10 +295,9 @@ proc dumpDom*(doc: YamlDocument, target: Stream,
                YamlStreamError].} =
   ## Dump a YamlDocument as YAML character stream.
   var
-    tagLib = initExtendedTagLibrary()
-    events = serialize(doc, tagLib,
+    events = serialize(doc,
                        if options.style == psJson: asNone else: anchorStyle)
-  present(events, target, tagLib, options)
+  present(events, target, options)
 
 proc `[]`*(node: YamlNode, i: int): YamlNode =
   ## Get the node at index *i* from a sequence. *node* must be a *ySequence*.
@@ -333,10 +323,10 @@ proc `[]`*(node: YamlNode, key: string): YamlNode =
   ## This searches for a scalar key with content *key* and either no explicit
   ## tag or the explicit tag ``!!str``.
   assert node.kind == yMapping
-  var keyNode = YamlNode(kind: yScalar, tag: "!", content: key)
+  var keyNode = YamlNode(kind: yScalar, tag: yTagExclamationMark, content: key)
   result = node.fields.getOrDefault(keyNode)
   if isNil(result):
-    keyNode.tag = "?"
+    keyNode.tag = yTagQuestionMark
     result = node.fields.getOrDefault(keyNode)
     if isNil(result):
       keyNode.tag = nimTag(yamlTagRepositoryPrefix & "str")

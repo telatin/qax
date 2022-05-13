@@ -4,6 +4,9 @@
 #    See the file "copying.txt", included in this
 #    distribution, for details about the copyright.
 
+import tables
+import ../data
+
 template internalError*(s: string) =
   # Note: to get the internal stacktrace that caused the error
   # compile with the `d:debug` flag.
@@ -12,13 +15,12 @@ template internalError*(s: string) =
     echo "[NimYAML] Error in file ", ii.filename, " at line ", ii.line, ":"
     echo s
     when not defined(JS):
-      echo "[NimYAML] Stacktrace:"
       try:
-        writeStackTrace()
-        let exc = getCurrentException()
-        if not isNil(exc.parent):
-          echo "Internal stacktrace:"
-          echo getStackTrace(exc.parent)
+        var exc = getCurrentException()
+        while not isNil(exc):
+          echo "… stacktrace [", exc.name, ": ", exc.msg, "]"
+          echo getStackTrace(exc)
+          exc = exc.parent
       except: discard
     echo "[NimYAML] Please report this bug."
     quit 1
@@ -41,13 +43,54 @@ template yAssert*(e: typed) =
       echo "[NimYAML] Please report this bug."
       quit 1
 
-proc yamlTestSuiteEscape*(s: string): string =
-  result = ""
-  for c in s:
-    case c
-    of '\l': result.add("\\n")
-    of '\c': result.add("\\r")
-    of '\\': result.add("\\\\")
-    of '\b': result.add("\\b")
-    of '\t': result.add("\\t")
-    else: result.add(c)
+proc nextAnchor*(s: var string, i: int) =
+  if s[i] == 'z':
+    s[i] = 'a'
+    if i == 0:
+      s.add('a')
+    else:
+      s[i] = 'a'
+      nextAnchor(s, i - 1)
+  else:
+    s[i] = char(int(s[i]) + 1)
+
+template resetHandles*(handles: var seq[tuple[handle, uriPrefix: string]]) {.dirty.} =
+  handles.setLen(0)
+  handles.add(("!", "!"))
+  handles.add(("!!", yamlTagRepositoryPrefix))
+
+proc registerHandle*(handles: var seq[tuple[handle, uriPrefix: string]], handle, uriPrefix: string): bool =
+  for i in countup(0, len(handles)-1):
+    if handles[i].handle == handle:
+      handles[i].uriPrefix = uriPrefix
+      return false
+  handles.add((handle, uriPrefix))
+  return false
+
+type
+  AnchorContext* = object
+    nextAnchorId: string
+    mapping: Table[Anchor, Anchor]
+
+proc initAnchorContext*(): AnchorContext =
+  return AnchorContext(nextAnchorId: "a", mapping: initTable[Anchor, Anchor]())
+
+proc process*(context: var AnchorContext,
+    target: var Properties, refs: Table[pointer, tuple[a: Anchor, referenced: bool]]) =
+  if target.anchor == yAnchorNone: return
+  for key, val in refs:
+    if val.a == target.anchor:
+      if not val.referenced:
+        target.anchor = yAnchorNone
+        return
+      break
+  if context.mapping.hasKey(target.anchor):
+    target.anchor = context.mapping.getOrDefault(target.anchor)
+  else:
+    let old = move(target.anchor)
+    target.anchor = context.nextAnchorId.Anchor
+    nextAnchor(context.nextAnchorId, len(context.nextAnchorId)-1)
+    context.mapping[old] = target.anchor
+
+proc map*(context: AnchorContext, anchor: Anchor): Anchor =
+  return context.mapping.getOrDefault(anchor)

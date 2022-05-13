@@ -2,7 +2,6 @@
 set -exuo pipefail
 OLDWD=$PWD
 
-PLATFORM=""
 STAT=""
 if [[ $(uname) == 'Darwin' ]];
 then
@@ -11,6 +10,8 @@ else
  STAT=" --passl:\"-static\" "
 fi
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+VER=$(grep version $DIR/../qax.nimble | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
+PLATFORM=""
 if [ -d "/project/src" ];
 then
   DIR="/project/src/"
@@ -25,7 +26,7 @@ fi
 
 
 nim c -d:useLibzipSrc -w:on $STAT -p:lib/yaml --opt:speed $RELEASE --verbosity:0 \
-  --hints:off -o:$DIR/../bin/qax${PLATFORM}   $DIR/qax.nim || { echo "Compilation failed."; exit 1; }
+  --hints:off -o:$DIR/../bin/qax${PLATFORM} -d:NimblePkgVersion=$VER   $DIR/qax.nim || { echo "Compilation failed."; exit 1; }
 
 $DIR/../bin/qax${PLATFORM} --help
 $DIR/../bin/qax${PLATFORM} $DIR/../input/*

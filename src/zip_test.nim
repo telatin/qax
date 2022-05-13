@@ -4,7 +4,7 @@ var
   zipCode : int
 
 try:
- zipCode = execShellCmd("zisp -r artifactor.zip *.* > /dev/null 2&>1")
+ zipCode = execShellCmd("zip -r artifactor.zip *.* > /dev/null 2&>1")
 except Exception as e:
   echo "ERROR: ", e.msg
   quit(1)

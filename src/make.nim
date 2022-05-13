@@ -11,17 +11,20 @@ type
     framework: string
     archive: int
     format: string
+    artifactType: string
     append: string
 
-proc newArtifactProperties(uuid, version, format: string, archive: int, attributes: seq[string]): ArtifactProperties =
-  result.uuid      = uuid
-  result.framework = version
-  result.format    = format
-  result.archive   = archive
-  result.append    = ""
+proc newArtifactProperties(uuid, version, format, artifactType: string, archive: int, attributes: seq[string]): ArtifactProperties =
+  result.uuid          = uuid
+  result.framework     = version
+  result.format        = format
+  result.artifactType  = artifactType
+  result.archive       = archive
+  result.append        = ""
   for propPair in attributes:
     try:
-      let value = propPair.split(":")
+      let 
+        value  = propPair.split(":")
       result.append &= value[0] & " : " & value[1]
     except Exception as e:
       stderr.writeLine("Unable to create metadata: invalid attributes: ", e.msg)
@@ -76,7 +79,7 @@ proc makeDirectory(inputDir, tempDir: string, artifactAttributes: ArtifactProper
 archive: {artifactAttributes.archive}
 framework: {artifactAttributes.framework}"""
     metadataFileText = fmt"""uuid: {artifactAttributes.uuid}
-type: Visualization
+type: {artifactAttributes.artifactType}
 format: {artifactAttributes.format}"""
 
   try:
@@ -124,6 +127,7 @@ Options:
 
 Attributes:
   --format <FORMAT>      Artifact format [default: HTML[Report]]
+  --type <TYPE>          Artifact type [default: Visualization]
   --version <VERSION>    Artifact framework version [default: 2019.10.0]
   --archive <ARCHIVE>    Artifact archive version [default: 5]
 
@@ -153,11 +157,16 @@ Attributes:
       stderr.writeLine("UUID:\t", uuid)
     # check that an input directory was provided and contains index.HTML
     if dirExists($args["<inputdirectory>"]):
-      if fileExists(joinPath($args["<inputdirectory>"], "index.html")):
+      if true:
         let
           aVersion = $args["--version"]
           aFormat  = $args["--format"]
+          aType    = $args["--type"]
           aArchive = parseInt($args["--archive"])
+        
+        if $args["--type"] == "Visualization" and  not fileExists(joinPath($args["<inputdirectory>"], "index.html")):
+          stderr.writeLine("ERROR: The input directory does not contain <index.html>, required for --type ", $args["--type"])
+          quit(1)         
         if verbose:
           stderr.writeLine("Input:\t", joinPath($args["<inputdirectory>"], "index.html") )
           stderr.writeLine("Temp:\t", $args["--tempdir"])
@@ -165,7 +174,7 @@ Attributes:
 
         var
           attributes = @["creator: qax"]
-          artifactAttributes = newArtifactProperties(uuid, aVersion, aFormat, aArchive, attributes)
+          artifactAttributes = newArtifactProperties(uuid, aVersion, aFormat, aType, aArchive, attributes)
 
         # Make directory
         if makeDirectory($args["<inputdirectory>"], $args["--tempdir"], artifactAttributes):
@@ -182,7 +191,7 @@ Attributes:
         else:
           quit(1)
       else:
-        stderr.writeLine("ERROR: The input directory does not contain <index.html>.")
+        stderr.writeLine("--")
         quit(1)
 
     else:

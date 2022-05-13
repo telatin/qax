@@ -5,7 +5,7 @@
 #    distribution, for details about the copyright.
 
 ## =======================
-## Module yaml.annotations
+## Module yaml/annotations
 ## =======================
 ##
 ## This module provides annotations for object fields that customize
@@ -27,7 +27,8 @@ template sparse*() {.pragma.}
   ## This annotation can be put on an object type. During deserialization,
   ## the input may omit any field that has an ``Option[T]`` type (for any
   ## concrete ``T``) and that field will be treated as if it had the annotation
-  ## ``{.defaultVal: none(T).}``.
+  ## ``{.defaultVal: none(T).}``. Fields of ``none(T)`` value are omitted
+  ## during serialization.
   ##
   ## Example usage:
   ##
@@ -46,10 +47,8 @@ template transient*() {.pragma.}
   ##
   ## .. code-block::
   ##   type MyObject = object
-  ##     a, b: string
-  ##     c: int
-  ##   markAsTransient(MyObject, a)
-  ##   markAsTransient(MyObject, c)
+  ##     a {.transient.}, b: string
+  ##     c {.transient.}: int
 
 template ignore*(keys : openarray[string]) {.pragma.}
   ## This annotation can be put on an object type. All keys with the given

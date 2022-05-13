@@ -5,12 +5,13 @@ import yaml
 import times
 
 
-const NimblePkgVersion {.strdefine.} = "<NimblePkgVersion>"
+const NimblePkgVersion {.strdefine.} = "<pre-release>"
 
 proc version*(): string =
   return NimblePkgVersion
 
 #[ Versions + Roadmap
+0.9.5
 0.9.3 udate make tool
 0.9.2 handle artifacts without citations; bug fix on extract function
 0.9.1 conda fixes

@@ -97,3 +97,7 @@ _visualization_ artifact.
 ```
 qax make -o report.qzv /path/to/webpage/
 ```
+
+*New in 0.9.6*
+Specifying a `--type` different than `Visualization` (which is the default),
+any directory can be included in data, even without an _index.html_ file.
