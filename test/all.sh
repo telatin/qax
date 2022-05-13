@@ -16,9 +16,9 @@ then
   DIR="/project/src/"
 fi
 PLATFORM=""
-if [[ $(uname) == "Darwin" ]]; then
- PLATFORM="_mac"
-fi
+#if [[ $(uname) == "Darwin" ]]; then
+# PLATFORM="_mac"
+#fi
 BIN="$DIR/../bin/qax${PLATFORM}"
 OUT="$DIR/../output/"
 FILES="$DIR/../input/"
