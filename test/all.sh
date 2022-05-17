@@ -156,5 +156,5 @@ else
   exit 1
 fi
 
-echo "$(readlink -f $BIN):$($BIN --version)"
+echo "VERSION $(readlink -f $BIN 2> /dev/null):$($BIN --version)"
 tput init || true

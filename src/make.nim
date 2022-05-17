@@ -20,14 +20,17 @@ proc newArtifactProperties(uuid, version, format, artifactType: string, archive:
   result.format        = format
   result.artifactType  = artifactType
   result.archive       = archive
-  result.append        = ""
+  result.append        = "created-with: qax"
   for propPair in attributes:
+    if ":" notin propPair:
+      stderr.writeLine "[making-artifact] Invalid attribute: " & propPair
+      continue
     try:
       let 
         value  = propPair.split(":")
       result.append &= value[0] & " : " & value[1]
     except Exception as e:
-      stderr.writeLine("Unable to create metadata: invalid attributes: ", e.msg)
+      stderr.writeLine("[making-artifact] Unable to create metadata: invalid attributes: ", e.msg)
       quit(1)
 
 proc makeArtifact(uuid, tmpDir, outputFile: string): bool =
@@ -62,7 +65,15 @@ proc makeArtifact(uuid, tmpDir, outputFile: string): bool =
   setCurrentDir(initialWorkDir)
   return true
 
-
+proc checkAttrs(attrs: seq[string]): seq[string] =
+  for item in attrs:
+    if ":" in item:
+      result.add(item)
+    elif "=" in item:
+      result.add(item.split("=")[0] & " : " & item.split("=")[1])
+    else:
+      stderr.writeLine("Invalid attribute: ", item)
+  return
 proc makeFile(text, destFile: string): bool =
   try:
     writeFile(destFile, text)
@@ -80,7 +91,7 @@ archive: {artifactAttributes.archive}
 framework: {artifactAttributes.framework}"""
     metadataFileText = fmt"""uuid: {artifactAttributes.uuid}
 type: {artifactAttributes.artifactType}
-format: {artifactAttributes.format}"""
+format: {artifactAttributes.format}""" & "\n" & artifactAttributes.append
 
   try:
     # make dir UUID
@@ -104,6 +115,7 @@ format: {artifactAttributes.format}"""
 
     return true
   except Exception as e:
+    stderr.writeLine("[makeDirectory]: Unable to create temporary directory: ", e.msg)
     return false
 
 proc make(argv: var seq[string]): int =
@@ -112,7 +124,7 @@ proc make(argv: var seq[string]): int =
                     else: "/tmp/"
 
     let args = docopt( format("""
-Usage: make [options] -o <artifact.qzv> <inputdirectory>
+Usage: make [options] [-a attr]... -o <artifact.qzv> <inputdirectory>
 
 Create a Qiime Visualization Artifact from a directory with a website,
 that must contain a 'index.html' file at the root.
@@ -126,10 +138,11 @@ Options:
   -h, --help             Show this help
 
 Attributes:
-  --format <FORMAT>      Artifact format [default: HTML[Report]]
-  --type <TYPE>          Artifact type [default: Visualization]
-  --version <VERSION>    Artifact framework version [default: 2019.10.0]
-  --archive <ARCHIVE>    Artifact archive version [default: 5]
+  --format FORMAT        Artifact format [default: HTML[Report]]
+  --type TYPE            Artifact type [default: Visualization]
+  --version VERSION      Artifact framework version [default: 2019.10.0]
+  --archive ARCHIVE      Artifact archive version [default: 5]
+  -a, --attr ATTR...     Artifact metadata attribute (key=value)
 
   """ % ["env_temp", env_temp]), version=version(), argv=argv)
 
@@ -140,6 +153,20 @@ Attributes:
     let
       force = args["--force"]
 
+    if fileExists(absolutePath($args["--output"])):
+      if not force:
+        stderr.writeLine("ERROR: Output file already exists: ", $args["--output"])
+        quit(1)
+      else:
+        try:
+          removeFile(absolutePath($args["--output"]))
+        except Exception as e:
+          stderr.writeLine("ERROR: Unable to remove output file: ", $args["--output"])
+          quit(1)
+
+
+    if verbose:
+      stderr.writeLine("args: ", args)
     if $args["--uuid"] == "nil":
       uuid = $genUUID()
     else:
@@ -173,13 +200,15 @@ Attributes:
           stderr.writeLine(fmt"Version={aVersion};Format={aFormat};Archive={aArchive}")
 
         var
-          attributes = @["creator: qax"]
+          attributes = checkAttrs(@(args["--attr"]))
+          #attributes = @[""]
           artifactAttributes = newArtifactProperties(uuid, aVersion, aFormat, aType, aArchive, attributes)
 
         # Make directory
         if makeDirectory($args["<inputdirectory>"], $args["--tempdir"], artifactAttributes):
           if verbose:
             stderr.writeLine(" * Temporary directory created")
+            stderr.writeLine(artifactAttributes)
         else:
           stderr.writeLine("ERROR: Unable to create temporary directory: ", $args["--tempdir"])
           quit(1)
