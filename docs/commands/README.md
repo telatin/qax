@@ -2,7 +2,7 @@
 sort: 2
 ---
 
-# Releases
+# Commands
 
 
 {% include list.liquid %}
