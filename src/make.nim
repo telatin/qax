@@ -126,8 +126,9 @@ proc make(argv: var seq[string]): int =
     let args = docopt( format("""
 Usage: make [options] [-a attr]... -o <artifact.qzv> <inputdirectory>
 
-Create a Qiime Visualization Artifact from a directory with a website,
-that must contain a 'index.html' file at the root.
+Create a Qiime Visualization Artifact from a directory with files.
+By default, will create a "Visualization", thus requiring an "index.html"
+file in the root of the input directory.
 
 Options:
   -o, --output <FILE>    Output artifact (required)
@@ -161,7 +162,7 @@ Attributes:
         try:
           removeFile(absolutePath($args["--output"]))
         except Exception as e:
-          stderr.writeLine("ERROR: Unable to remove output file: ", $args["--output"])
+          stderr.writeLine("ERROR: Unable to remove output file: ", $args["--output"], ": ", e.msg)
           quit(1)
 
 
