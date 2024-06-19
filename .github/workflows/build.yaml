@@ -1,9 +1,8 @@
 # copied from Daniel Cook's Seq collection
-name: "Build"
+name: "Legacy-build-test"
 
 on: 
-  - push
-  - pull_request
+  workflow_dispatch
 
 jobs:
   build:
