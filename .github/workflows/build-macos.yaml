@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ macos-10.15]
+        os: [ macos-12 ]
         nimversion:
         - 1.6.6
 
