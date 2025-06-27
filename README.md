@@ -1,6 +1,6 @@
 # :package: Qiime2 Artifact eXtractor
 
-[![Build](https://github.com/telatin/qax/actions/workflows/build.yaml/badge.svg)](https://github.com/telatin/qax/actions/workflows/build.yaml)
+[![Build-Linux](https://github.com/telatin/qax/actions/workflows/build-linux.yaml/badge.svg)](https://github.com/telatin/qax/actions/workflows/build-linux.yaml)
 [![Repository Size](https://img.shields.io/github/languages/code-size/telatin/qax)](https://github.com/telatin/qax)
 [![Latest release](https://img.shields.io/github/v/release/telatin/qax)](https://github.com/telatin/qax/releases)
 [![BioConda Downloads](https://img.shields.io/conda/dn/bioconda/qax)](https://bioconda.github.io/recipes/qax/README.html)
