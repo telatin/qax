@@ -1,13 +1,11 @@
-# copied from Daniel Cook's Seq collection
+# Build workflow for Linux - updated to use modern Ubuntu
 name: "Build-Linux"
-
 on: 
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -16,41 +14,42 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04] #ubuntu-24.04
+        os: [ubuntu-24.04]
         nimversion:
         - 1.6.6
-
-
+    
     steps:
-    - uses: actions/checkout@v2
-
-    # Caching
+    # Checkout the repository code
+    - uses: actions/checkout@v4
+    
+    # Cache dependencies for faster builds
     - name: Cache choosenim
       id: cache-choosenim
-      uses: actions/cache@v1
+      uses: actions/cache@v4
       with:
         path: ~/.choosenim
         key: ${{ runner.os }}-choosenim-stable
-
+        
     - name: Cache nimble
       id: cache-nimble
-      uses: actions/cache@v1
+      uses: actions/cache@v4
       with:
         path: ~/.nimble
         key: ${{ runner.os }}-nimble-stable
  
-    # Install Dependencies
+    # Install system dependencies
     - name: Install dependencies (Linux)
       run: |
         sudo apt-get update
-        sudo apt-get -qy install  make build-essential cmake libncurses-dev ncurses-dev libbz2-dev lzma-dev liblzma-dev \
+        sudo apt-get -qy install make build-essential cmake libncurses-dev ncurses-dev libbz2-dev lzma-dev liblzma-dev \
              curl libssl-dev libtool autoconf automake libcurl4-openssl-dev zlib1g-dev
-
-
+    
+    # Install Nim programming language
     - uses: iffy/install-nim@v3.2.0
       with:
         version: ${{ matrix.nimversion }}
  
+    # Build, test, and prepare the executable
     - name: Build and Test Linux executable
       run: |
         nimble build -y --verbose
@@ -58,6 +57,8 @@ jobs:
         bin/qax --version
         bash test/all.sh
         mv bin/qax bin/qax-linux
+        
+    # Upload the built binary as an artifact
     - name: Upload binary artifact
       uses: actions/upload-artifact@v4
       with:
