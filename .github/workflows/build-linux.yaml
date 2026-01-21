@@ -16,7 +16,8 @@ jobs:
       matrix:
         os: [ubuntu-24.04]
         nimversion:
-        - 1.6.6
+        - 2.0.10
+        - 2.2.0
     
     steps:
     # Checkout the repository code

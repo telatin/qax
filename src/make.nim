@@ -99,7 +99,7 @@ format: {artifactAttributes.format}""" & "\n" & artifactAttributes.append
       createDir(tempUUID)
     else:
       try:
-        removeDir(tempUUID):
+        removeDir(tempUUID)
       except Exception as e:
         stderr.writeLine(fmt"Unable to remove temporary directory {tempUUID}: {e.msg}")
         return false

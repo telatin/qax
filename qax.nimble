@@ -1,11 +1,11 @@
 # Package
-version       = "0.9.8"
+version       = "1.0.0"
 author        = "Andrea Telatin"
 description   = "Qiime Artifact eXtractor"
 license       = "Apache"
 
 # Dependencies
-requires "nim >= 1.2", "docopt", "terminaltables", "zip", "uuids"
+requires "nim >= 2.0.0", "docopt", "terminaltables", "zip", "uuids", "yaml >= 2.0.0"
 
 srcDir = "src"
 
