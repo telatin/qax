@@ -2,9 +2,9 @@
 name: "Build-Macos"
 
 on:
-  workflow_dispatch:
   release:
     types: [created]
+  workflow_dispatch:
 
 jobs:
   build:
