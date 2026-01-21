@@ -46,8 +46,9 @@ proc getChildType(inputFile, childId, parentId, parentType: string): string =
 
   try:
     let child = readFileFromZip(inputFile, metadataPath)
-    let meta = loadDom(child)
-    return meta.root["format"].content
+    var meta: YamlNode
+    load(child, meta)
+    return meta["format"].content
   except Exception as e:
     stderr.writeLine("Warning: unable to find metadata for: ", childId)
     return ""
@@ -99,19 +100,20 @@ Options:
     # Parse child metadata / action
     let childYaml = joinPath(art.uuid, joinPath("provenance", joinPath(joinPath("action", "action.yaml"))))
     let child = readFileFromZip($args["<inputfile>"], childYaml)
-    let childMeta = loadDom(child)
+    var childMeta: YamlNode
+    load(child, childMeta)
     var inputSeq = newSeq[string]()
-    echo childMeta.root["action"]["plugin"].content
-    
-    
+    echo childMeta["action"]["plugin"].content
+
+
     try:
-      let inputs = childMeta.root["action"]["inputs"]
+      let inputs = childMeta["action"]["inputs"]
       for node in inputs.items:
         for i in node.pairs:
           inputSeq.add(i.value.content)
           dotEdges &= makeEdge(art.uuid, i.value.content, "?")
 
-      let parents = childMeta.root["action"]["parameters"]
+      let parents = childMeta["action"]["parameters"]
       for node in parents.items:
         for i in node.pairs:
           if i.key.content == "input":
@@ -122,11 +124,11 @@ Options:
       quit(1)
 
     try:
-      actionType[art.uuid] = childMeta.root["action"]["output-name"].content
+      actionType[art.uuid] = childMeta["action"]["output-name"].content
     except:
       actionType[art.uuid] = "<not-found>"
 
-    Family.add((uuid: art.uuid, rank: "child", actionName: "", timestamp: parseStamp(childMeta.root["execution"]["runtime"]["start"].content), inputs: inputSeq))
+    Family.add((uuid: art.uuid, rank: "child", actionName: "", timestamp: parseStamp(childMeta["execution"]["runtime"]["start"].content), inputs: inputSeq))
     
     # Parse actions for all parents
     for parent in art.parents:
@@ -137,16 +139,17 @@ Options:
 
       let proveYaml = joinPath(art.uuid, joinPath("provenance/artifacts", joinPath(parent, joinPath("action", "action.yaml"))))
       let yaml = readFileFromZip($args["<inputfile>"], proveYaml)
-      let metaYaml    = loadDOM(yaml)
-      
+      var metaYaml: YamlNode
+      load(yaml, metaYaml)
+
       try:
-        pluginActionName = metaYaml.root["action"]["plugin"].content
+        pluginActionName = metaYaml["action"]["plugin"].content
       except Exception as e:
         rank = "top"
         inputSeq.add("<none>")
 
       try:
-        let inputs = metaYaml.root["action"]["inputs"]
+        let inputs = metaYaml["action"]["inputs"]
         for node in inputs.items:
           for i in node.pairs:
             dotNodes &= makeEdge(parent, i.value.content, i.key.content)
@@ -155,7 +158,7 @@ Options:
       except Exception as e:
         rank = "top"
 
-      Family.add((uuid: parent, rank: rank, actionName: pluginActionName, timestamp: parseStamp(metaYaml.root["execution"]["runtime"]["start"].content), inputs: inputSeq))
+      Family.add((uuid: parent, rank: rank, actionName: pluginActionName, timestamp: parseStamp(metaYaml["execution"]["runtime"]["start"].content), inputs: inputSeq))
 
 
     Family =  Family.sortedByIt(it.timestamp)

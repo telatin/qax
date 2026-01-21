@@ -48,6 +48,22 @@ Alternatively, you can install _qax_ from BioConda, if you have _conda_ installe
 conda install -c conda-forge -c bioconda qax
 ```
 
+### Building from source
+
+**Version 1.0.0+ requires Nim 2.0.0 or later.**
+
+If you want to build from source, you need:
+- [Nim](https://nim-lang.org/) >= 2.0.0
+- [Nimble](https://github.com/nim-lang/nimble) (Nim's package manager)
+
+```bash
+git clone https://github.com/telatin/qax
+cd qax
+nimble build
+```
+
+For versions prior to 1.0.0, Nim 1.6.6 was used.
+
 ## :book: Usage
 
 `qax` has four subprograms (general syntax is `qax [program] [program-arguments]`):

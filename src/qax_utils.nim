@@ -184,20 +184,23 @@ proc readArtifact*(path: string): QiimeArtifact =
       versionLines = version.split("\n")
     versionLines.delete(0)  #Remove first line QIIME2
 
-    let
-      metaYaml    = loadDOM(metadata)
-      versionYaml = loadDOM(versionLines.join("\n"))
+    var
+      metaYaml: YamlNode
+      versionYaml: YamlNode
+
+    load(metadata, metaYaml)
+    load(versionLines.join("\n"), versionYaml)
 
     try:
-      result.version = versionYaml.root["framework"].content
-      result.archive = versionYaml.root["archive"].content
+      result.version = versionYaml["framework"].content
+      result.archive = versionYaml["archive"].content
     except Exception as e:
       stderr.writeLine("Unable to parse Artifact version: ", e.msg)
 
     try:
-      result.artifacttype = metaYaml.root["type"].content
+      result.artifacttype = metaYaml["type"].content
       result.format = if result.artifacttype == "Visualization" : "HTML"
-                      else: metaYaml.root["format"].content
+                      else: metaYaml["format"].content
     except Exception as e:
       stderr.writeLine("Unable to parse Artifact metadata.yaml: ", e.msg)
 

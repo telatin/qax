@@ -1,6 +1,6 @@
 # Build workflow for Linux - updated to use modern Ubuntu
 name: "Build-Linux"
-on: 
+on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: [ "main" ]
@@ -8,6 +8,9 @@ on:
     branches: [ "main" ]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  # Trigger on release creation
+  release:
+    types: [created]
 
 jobs:
   build:
@@ -16,7 +19,8 @@ jobs:
       matrix:
         os: [ubuntu-24.04]
         nimversion:
-        - 1.6.6
+        - 2.0.10
+        - 2.2.0
     
     steps:
     # Checkout the repository code
@@ -60,6 +64,7 @@ jobs:
         
     # Upload the built binary as an artifact
     - name: Upload binary artifact
+      if: github.event_name == 'release' && matrix.nimversion == '2.2.0'
       uses: actions/upload-artifact@v4
       with:
         name: qax-linux
