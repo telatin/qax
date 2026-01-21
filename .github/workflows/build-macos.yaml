@@ -1,8 +1,10 @@
 # copied from Daniel Cook's Seq collection
 name: "Build-Macos"
 
-on: 
+on:
   workflow_dispatch
+  release:
+    types: [created]
 
 jobs:
   build:
@@ -51,6 +53,7 @@ jobs:
         
  
     - name: Upload binary artifact
+      if: github.event_name == 'release'
       uses: actions/upload-artifact@v4
       with:
         name: qax-macos
